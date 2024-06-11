@@ -7,7 +7,7 @@
 		"--name=spacesdk-core"
 	],
 	"workspaceFolder": "/workspace/spacesdk-core",
-	"workspaceMount": "source=${localWorkspaceFolder}/samples/try-space-sdk,target=/workspace/spacesdk-core,type=bind,consistency=cached",
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspace/spacesdk-core,type=bind,consistency=cached",
 	"features": {
 		"ghcr.io/microsoft/azure-orbital-space-sdk/spacefx-dev:0.11.0": {
 			"app_name": "spacesdk-core",
