@@ -1,0 +1,11 @@
+{
+    "pluginFile": "/workspaces/spacesdk-core/test/debugHostPlugin/bin/Debug/net6.0/debugHostPlugin.dll",
+    "pluginName": "debugHostPlugin",
+    "targetService": "spacesdk-core",
+    "plugin_permissions": "ALL",
+    "core_permissions": "ALL",
+    "build_artifacts": [],
+    "configuration": {
+        "testconfig": "Hello Space World"
+    }
+}

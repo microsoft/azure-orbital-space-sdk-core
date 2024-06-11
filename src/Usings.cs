@@ -1,0 +1,15 @@
+global using Dapr.AppCallback.Autogen.Grpc.v1;
+global using Google.Protobuf;
+global using Google.Protobuf.WellKnownTypes;
+global using Grpc.Core;
+global using Microsoft.AspNetCore.Components.Forms;
+global using Microsoft.Extensions.Options;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Hosting;
+global using Microsoft.Extensions.Logging;
+global using OpenTelemetry.Metrics;
+global using System.Collections.Concurrent;
+global using System.Diagnostics.Metrics;
+global using System.Reflection;
+global using System.Text.Json;
+global using Google.Protobuf.Reflection;

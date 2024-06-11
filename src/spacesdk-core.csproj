@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <PackageId>Microsoft.Azure.SpaceFx.Core</PackageId>
+    <PackageTags>Microsoft Azure Space SDK;Microsoft;Azure;Space;</PackageTags>
+    <Description>
+      Base class and common functions used across the entire Azure Space SDK
+    </Description>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RuntimeIdentifiers>win-x64;linux-x64;linux-arm64</RuntimeIdentifiers>
+    <VersionPrefix>$(VersionPrefix)</VersionPrefix>
+    <VersionSuffix>$(VersionSuffix)</VersionSuffix>
+    <PreserveCompilationContext>false</PreserveCompilationContext>
+  </PropertyGroup>
+  <ItemGroup>
+    <Protobuf Include="/workspaces/spacesdk-core/src/Protos/Common.proto" GrpcServices="Both" Access="Public" ProtoCompile="True" CompileOutputs="True" ProtoRoot="/workspaces/spacesdk-core/src/Protos" OutputDir="obj/Debug/net6.0/" />
+    <Protobuf Include="/workspaces/spacesdk-core/spacedev_cache/protos/dapr/proto/common/v1/common.proto" GrpcServices="Both" Access="Public" ProtoCompile="True" CompileOutputs="True" ProtoRoot="/workspaces/spacesdk-core/spacedev_cache/protos" OutputDir="obj/Debug/net6.0/" />
+    <Protobuf Include="/workspaces/spacesdk-core/spacedev_cache/protos/dapr/proto/runtime/v1/appcallback.proto" GrpcServices="Both" Access="Public" ProtoCompile="True" CompileOutputs="True" ProtoRoot="/workspaces/spacesdk-core/spacedev_cache/protos" OutputDir="obj/Debug/net6.0/" />
+    <Protobuf Include="/workspaces/spacesdk-core/spacedev_cache/protos/dapr/proto/runtime/v1/dapr.proto" GrpcServices="Both" Access="Public" ProtoCompile="True" CompileOutputs="True" ProtoRoot="/workspaces/spacesdk-core/spacedev_cache/protos" OutputDir="obj/Debug/net6.0/" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Google.Api.CommonProtos" Version="2.11.0" />
+    <PackageReference Include="Google.Protobuf" Version="3.24.4" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.57.0" />
+    <PackageReference Include="Grpc.Net.Client" Version="2.61.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
+    <PackageReference Include="OpenTelemetry" Version="1.5.1" />
+    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.5.1" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.5.1" />
+  </ItemGroup>
+  <!-- <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+  </PropertyGroup> -->
+</Project>
