@@ -12,7 +12,8 @@
 		"ghcr.io/microsoft/azure-orbital-space-sdk/spacefx-dev:0.11.0": {
 			"app_name": "spacesdk-core",
 			"app_type": "spacesdk-core",
-			"addl_debug_shim_suffixes": "client"
+			"addl_debug_shim_suffixes": "client",
+			"extra_packages": "nano"
 		}
 	},
 	"hostRequirements": {
