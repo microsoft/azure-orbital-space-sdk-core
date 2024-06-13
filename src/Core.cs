@@ -679,7 +679,7 @@ public partial class Core {
 
                     MessageFormats.Common.CacheItem cacheObject = MessageFormats.Common.CacheItem.Parser.ParseFrom(raw_cache_item);
 
-                    if (cacheObject.ExpirationTime.ToDateTime().ToUniversalTime() < DateTime.UtcNow) {
+                    if (cacheObject.ExpirationTime?.ToDateTime().ToUniversalTime() < DateTime.UtcNow) {
                         File.Delete(file);
                     }
                 });
