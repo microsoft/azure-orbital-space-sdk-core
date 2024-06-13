@@ -17,10 +17,10 @@
                 "pipeCwd": "${workspaceRoot}/test/debugHost",
                 "pipeProgram": "bash",
                 "pipeArgs": [
-                    "-c \" kubectl exec --stdin $(kubectl get pods -l app=spacesdk-core -n payload-app --sort-by=.metadata.creationTimestamp -o jsonpath=\"{.items[-1:].metadata.name}\") -n payload-app -c spacesdk-core -- "
+                    "-c \" kubectl exec deploy/spacesdk-core --stdin -n payload-app -c spacesdk-core -- "
                 ],
                 "quoteArgs": false,
-                "debuggerPath": "${workspaceFolder}/.git/vsdbg/vsdbg"
+                "debuggerPath": "${workspaceFolder}/.git/spacefx-dev/vsdbg/vsdbg"
             },
             "postDebugTask": "reset-debugshim-host",
             "presentation": {
@@ -49,10 +49,10 @@
                 "pipeCwd": "${workspaceRoot}/test/integrationTests",
                 "pipeProgram": "bash",
                 "pipeArgs": [
-                    "-c \" kubectl exec --stdin $(kubectl get pods -l app=spacesdk-core-client -n payload-app --sort-by=.metadata.creationTimestamp -o jsonpath=\"{.items[-1:].metadata.name}\") -n payload-app -c spacesdk-core-client -- "
+                    "-c \" kubectl exec deploy/spacesdk-core-client --stdin -n payload-app -c spacesdk-core-client -- "
                 ],
                 "quoteArgs": false,
-                "debuggerPath": "${workspaceFolder}/.git/vsdbg/vsdbg"
+                "debuggerPath": "${workspaceFolder}/.git/spacefx-dev/vsdbg/vsdbg"
             },
             "postDebugTask": "reset-debugshim-test-client",
             "presentation": {
@@ -81,10 +81,10 @@
                 "pipeCwd": "${workspaceRoot}/test/integrationTests",
                 "pipeProgram": "bash",
                 "pipeArgs": [
-                    "-c \" kubectl exec --stdin $(kubectl get pods -l app=spacesdk-core-client -n payload-app --sort-by=.metadata.creationTimestamp -o jsonpath=\"{.items[-1:].metadata.name}\") -n payload-app -c spacesdk-core-client -- "
+                    "-c \" kubectl exec deploy/spacesdk-core-client --stdin -n payload-app -c spacesdk-core-client -- "
                 ],
                 "quoteArgs": false,
-                "debuggerPath": "${workspaceFolder}/.git/vsdbg/vsdbg"
+                "debuggerPath": "${workspaceFolder}/.git/spacefx-dev/vsdbg/vsdbg"
             },
             "postDebugTask": "reset-debugshim-test-client",
             "presentation": {
@@ -112,10 +112,10 @@
                 "pipeCwd": "${workspaceRoot}/test/integrationTestHost",
                 "pipeProgram": "bash",
                 "pipeArgs": [
-                    "-c \" kubectl exec --stdin $(kubectl get pods -l app=spacesdk-core -n payload-app --sort-by=.metadata.creationTimestamp -o jsonpath=\"{.items[-1:].metadata.name}\") -n payload-app -c spacesdk-core -- "
+                    "-c \" kubectl exec deploy/spacesdk-core --stdin -n payload-app -c spacesdk-core -- "
                 ],
                 "quoteArgs": false,
-                "debuggerPath": "${workspaceFolder}/.git/vsdbg/vsdbg"
+                "debuggerPath": "${workspaceFolder}/.git/spacefx-dev/vsdbg/vsdbg"
             },
             "postDebugTask": "reset-debugshim-test-host",
             "presentation": {
