@@ -1,0 +1,157 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "DebugHost",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "/usr/bin/dotnet",
+            "preLaunchTask": "deploy-debugshim-host",
+            "args": [
+                "${workspaceFolder}/test/debugHost/bin/Debug/net6.0/debugHost.dll"
+            ],
+            "cwd": "${workspaceFolder}/test/debugHost",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "pipeTransport": {
+                "pipeCwd": "${workspaceRoot}/test/debugHost",
+                "pipeProgram": "bash",
+                "pipeArgs": [
+                    "-c \" kubectl exec deploy/spacesdk-core --stdin -n payload-app -c spacesdk-core -- "
+                ],
+                "quoteArgs": false,
+                "debuggerPath": "${workspaceFolder}/.git/spacefx-dev/vsdbg/vsdbg"
+            },
+            "postDebugTask": "reset-debugshim-host",
+            "presentation": {
+                "hidden": false,
+                "group": "",
+                "order": 1
+            },
+            "requireExactSource": true
+        },
+        {
+            "name": "Integration Tests - Client Debug",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "/usr/bin/dotnet",
+            "preLaunchTask": "deploy-debugshim-integrationTest",
+            "args": [
+                "${workspaceFolder}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll"
+            ],
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "cwd": "${workspaceFolder}/test/integrationTests",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "pipeTransport": {
+                "pipeCwd": "${workspaceRoot}/test/integrationTests",
+                "pipeProgram": "bash",
+                "pipeArgs": [
+                    "-c \" kubectl exec deploy/spacesdk-core-client --stdin -n payload-app -c spacesdk-core-client -- "
+                ],
+                "quoteArgs": false,
+                "debuggerPath": "${workspaceFolder}/.git/spacefx-dev/vsdbg/vsdbg"
+            },
+            "postDebugTask": "reset-debugshim-test-client",
+            "presentation": {
+                "hidden": true,
+                "group": "integrationtests",
+                "order": 1
+            },
+            "requireExactSource": true
+        },
+        {
+            "name": "Integration Tests - Client Run",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "/usr/bin/dotnet",
+            "preLaunchTask": "deploy-debugshim-integrationTest",
+            "args": [
+                "test",
+                "--verbosity",
+                "detailed",
+                "${workspaceRoot}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll"
+            ],
+            "cwd": "${workspaceFolder}/test/integrationTests",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "pipeTransport": {
+                "pipeCwd": "${workspaceRoot}/test/integrationTests",
+                "pipeProgram": "bash",
+                "pipeArgs": [
+                    "-c \" kubectl exec deploy/spacesdk-core-client --stdin -n payload-app -c spacesdk-core-client -- "
+                ],
+                "quoteArgs": false,
+                "debuggerPath": "${workspaceFolder}/.git/spacefx-dev/vsdbg/vsdbg"
+            },
+            "postDebugTask": "reset-debugshim-test-client",
+            "presentation": {
+                "hidden": true,
+                "group": "integrationtests",
+                "order": 2
+            },
+        },
+        {
+            "name": "Integration Tests - Host",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "/usr/bin/dotnet",
+            "preLaunchTask": "deploy-debugshim-integrationTest-host",
+            "args": [
+                "${workspaceFolder}/test/integrationTestHost/bin/Debug/net6.0/integrationTestHost.dll"
+            ],
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "cwd": "${workspaceFolder}/test/integrationTestHost",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "pipeTransport": {
+                "pipeCwd": "${workspaceRoot}/test/integrationTestHost",
+                "pipeProgram": "bash",
+                "pipeArgs": [
+                    "-c \" kubectl exec deploy/spacesdk-core --stdin -n payload-app -c spacesdk-core -- "
+                ],
+                "quoteArgs": false,
+                "debuggerPath": "${workspaceFolder}/.git/spacefx-dev/vsdbg/vsdbg"
+            },
+            "postDebugTask": "reset-debugshim-test-host",
+            "presentation": {
+                "hidden": true,
+                "group": "integrationtests",
+                "order": 1
+            },
+            "requireExactSource": true
+        },
+    ],
+    "compounds": [
+        {
+            "name": "Integration Tests - Debug",
+            "configurations": [
+                "Integration Tests - Host",
+                "Integration Tests - Client Debug"
+            ],
+            "stopAll": true,
+            "presentation": {
+                "hidden": false,
+                "group": "integrationtests",
+                "order": 3
+            }
+        },
+        {
+            "name": "Integration Tests - Run",
+            "configurations": [
+                "Integration Tests - Host",
+                "Integration Tests - Client Run"
+            ],
+            "stopAll": true,
+            "presentation": {
+                "hidden": false,
+                "group": "integrationtests",
+                "order": 3
+            }
+        }
+    ]
+}

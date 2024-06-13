@@ -1,0 +1,394 @@
+{
+    "version": "2.0.0",
+    "options": {
+        "env": {
+            "DEBUG_SHIM_HOST": "spacesdk-core",
+            "DEBUG_SHIM_CLIENT": "spacesdk-core-client"
+        }
+    },
+    "tasks": [
+        {
+            "label": "deploy-debugshim-host",
+            "isBackground": false,
+            "command": "/bin/bash",
+            "type": "shell",
+            "dependsOn": [
+                "build",
+                "build-debugHostPlugin"
+            ],
+            "dependsOrder": "sequence",
+            "args": [
+                "/spacefx-dev/debugShim-deploy.sh",
+                "--debug_shim",
+                "${DEBUG_SHIM_HOST}"
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            }
+        },
+        {
+            "label": "reset-debugshim-host",
+            "isBackground": true,
+            "command": "/bin/bash",
+            "type": "shell",
+            "dependsOrder": "sequence",
+            "args": [
+                "/spacefx-dev/debugShim-reset.sh",
+                "--debug_shim",
+                "${DEBUG_SHIM_HOST}",
+                "--skip-pod-wait"
+            ],
+            "presentation": {
+                "echo": false,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            }
+        },
+        {
+            "label": "build-debugHostPlugin",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/test/debugHostPlugin/debugHostPlugin.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build-integrationTestHostPlugin",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/test/integrationTestHostPlugin/integrationTestHostPlugin.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "build",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/test/debugHost/debugHost.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "publish",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/test/debugHost/debugHost.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "deploy-debugshim-client",
+            "isBackground": false,
+            "command": "/bin/bash",
+            "type": "shell",
+            "dependsOn": [
+                "pause-processing",
+                "build-client"
+            ],
+            "dependsOrder": "sequence",
+            "args": [
+                "/spacefx-dev/debugShim-deploy.sh",
+                "--debug_shim",
+                "${DEBUG_SHIM_CLIENT}"
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            }
+        },
+        {
+            "label": "reset-debugshim-client",
+            "isBackground": true,
+            "command": "/bin/bash",
+            "type": "shell",
+            "dependsOrder": "sequence",
+            "args": [
+                "/spacefx-dev/debugShim-reset.sh",
+                "--debug_shim",
+                "${DEBUG_SHIM_CLIENT}",
+                "--skip-pod-wait"
+            ],
+            "presentation": {
+                "echo": false,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            }
+        },
+        {
+            "label": "build-client",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/test/debugClient/debugClient.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "publish-client",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/test/debugClient/debugClient.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "deploy-debugshim-unitTest",
+            "isBackground": false,
+            "command": "/bin/bash",
+            "type": "shell",
+            "dependsOn": [
+                "build-unitTest"
+            ],
+            "dependsOrder": "sequence",
+            "args": [
+                "/spacefx-dev/debugShim-deploy.sh",
+                "--debug_shim",
+                "${DEBUG_SHIM_CLIENT}"
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            }
+        },
+        {
+            "label": "reset-debugshim-test-client",
+            "isBackground": true,
+            "command": "/bin/bash",
+            "type": "shell",
+            "dependsOrder": "sequence",
+            "args": [
+                "/spacefx-dev/debugShim-reset.sh",
+                "--debug_shim",
+                "${DEBUG_SHIM_CLIENT}",
+                "--skip-pod-wait"
+            ],
+            "presentation": {
+                "echo": false,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            }
+        },
+        {
+            "label": "pause-processing",
+            "isBackground": false,
+            "command": "sleep",
+            "type": "process",
+            "args": [
+                "3s"
+            ],
+            "presentation": {
+                "echo": false,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            }
+        },
+        {
+            "label": "deploy-debugshim-integrationTest",
+            "isBackground": false,
+            "command": "/bin/bash",
+            "type": "shell",
+            "dependsOn": [
+                "pause-processing",
+                "build-integrationTest"
+            ],
+            "dependsOrder": "sequence",
+            "args": [
+                "/spacefx-dev/debugShim-deploy.sh",
+                "--debug_shim",
+                "${DEBUG_SHIM_CLIENT}"
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            }
+        },
+        {
+            "label": "reset-debugshim-test-client",
+            "isBackground": true,
+            "command": "/bin/bash",
+            "type": "shell",
+            "dependsOrder": "sequence",
+            "args": [
+                "/spacefx-dev/debugShim-reset.sh",
+                "--debug_shim",
+                "${DEBUG_SHIM_CLIENT}",
+                "--skip-pod-wait"
+            ],
+            "presentation": {
+                "echo": false,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            }
+        },
+        {
+            "label": "build-integrationTest",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/test/integrationTests/integrationTests.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary",
+                "--property:Debug=portable"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "publish-integrationTest",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/test/integrationTests/integrationTests.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "deploy-debugshim-integrationTest-host",
+            "isBackground": false,
+            "command": "/bin/bash",
+            "type": "shell",
+            "dependsOn": [
+                "build-integrationTest-host"
+            ],
+            "dependsOrder": "sequence",
+            "args": [
+                "/spacefx-dev/debugShim-deploy.sh",
+                "--debug_shim",
+                "${DEBUG_SHIM_HOST}"
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            }
+        },
+        {
+            "label": "reset-debugshim-test-host",
+            "isBackground": true,
+            "command": "/bin/bash",
+            "type": "shell",
+            "dependsOrder": "sequence",
+            "args": [
+                "/spacefx-dev/debugShim-reset.sh",
+                "--debug_shim",
+                "${DEBUG_SHIM_HOST}",
+                "--skip-pod-wait"
+            ],
+            "presentation": {
+                "echo": false,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            }
+        },
+        {
+            "label": "build-integrationTest-host",
+            "command": "dotnet",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "build-integrationTestHostPlugin"
+            ],
+            "type": "process",
+            "args": [
+                "build",
+                "${workspaceFolder}/test/integrationTestHost/integrationTestHost.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary",
+                "--property:Debug=portable"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "publish-integrationTest-host",
+            "command": "dotnet",
+            "type": "process",
+            "args": [
+                "publish",
+                "${workspaceFolder}/test/integrationTestHost/integrationTestHost.csproj",
+                "/property:GenerateFullPaths=true",
+                "/consoleloggerparameters:NoSummary"
+            ],
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "pause-processing",
+            "isBackground": false,
+            "command": "sleep",
+            "type": "process",
+            "args": [
+                "3s"
+            ],
+            "presentation": {
+                "echo": false,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": false
+            }
+        }
+    ]
+}

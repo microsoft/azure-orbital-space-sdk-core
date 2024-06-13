@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package Microsoft.Azure.SpaceFx.MessageFormats.Testing;
+option csharp_namespace = "Microsoft.Azure.SpaceFx.MessageFormats.Testing";
+
+import "google/protobuf/timestamp.proto";
+import "src/Protos/Common.proto";
+
+message SimpleMessage {
+   Common.RequestHeader requestHeader = 1;
+   string message = 2;
+}
+
+message PluginTestMessage {
+   Common.RequestHeader requestHeader = 1;
+   string message = 2;
+}
+
+message ComplexMessage {
+   enum MessageType {
+      ALPHA = 0;
+      BRAVO = 1;
+      CHARLIE = 2;
+      DELTA = 3;
+   }
+   Common.RequestHeader requestHeader = 1;
+   string message = 2;
+   MessageType messageType = 3;
+   google.protobuf.Timestamp messageTime = 4;
+   map<string, string> metadata = 5;
+}
