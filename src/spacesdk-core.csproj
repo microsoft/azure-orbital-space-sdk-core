@@ -16,9 +16,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Protobuf Include="/workspaces/spacesdk-core/src/Protos/Common.proto" GrpcServices="Both" Access="Public" ProtoCompile="True" CompileOutputs="True" ProtoRoot="/workspaces/spacesdk-core/src/Protos" OutputDir="obj/Debug/net6.0/" />
-    <Protobuf Include="/workspaces/spacesdk-core/spacedev_cache/protos/dapr/proto/common/v1/common.proto" GrpcServices="Both" Access="Public" ProtoCompile="True" CompileOutputs="True" ProtoRoot="/workspaces/spacesdk-core/spacedev_cache/protos" OutputDir="obj/Debug/net6.0/" />
-    <Protobuf Include="/workspaces/spacesdk-core/spacedev_cache/protos/dapr/proto/runtime/v1/appcallback.proto" GrpcServices="Both" Access="Public" ProtoCompile="True" CompileOutputs="True" ProtoRoot="/workspaces/spacesdk-core/spacedev_cache/protos" OutputDir="obj/Debug/net6.0/" />
-    <Protobuf Include="/workspaces/spacesdk-core/spacedev_cache/protos/dapr/proto/runtime/v1/dapr.proto" GrpcServices="Both" Access="Public" ProtoCompile="True" CompileOutputs="True" ProtoRoot="/workspaces/spacesdk-core/spacedev_cache/protos" OutputDir="obj/Debug/net6.0/" />
+    <Protobuf Include="/workspaces/spacesdk-core/src/Protos/dapr/proto/common/v1/common.proto" GrpcServices="Both" Access="Public" ProtoCompile="True" CompileOutputs="True" ProtoRoot="/workspaces/spacesdk-core/src/Protos" OutputDir="obj/Debug/net6.0/" />
+    <Protobuf Include="/workspaces/spacesdk-core/src/Protos/dapr/proto/runtime/v1/appcallback.proto" GrpcServices="Both" Access="Public" ProtoCompile="True" CompileOutputs="True" ProtoRoot="/workspaces/spacesdk-core/src/Protos" OutputDir="obj/Debug/net6.0/" />
+    <Protobuf Include="/workspaces/spacesdk-core/src/Protos/dapr/proto/runtime/v1/dapr.proto" GrpcServices="Both" Access="Public" ProtoCompile="True" CompileOutputs="True" ProtoRoot="/workspaces/spacesdk-core/src/Protos" OutputDir="obj/Debug/net6.0/" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Google.Api.CommonProtos" Version="2.11.0" />

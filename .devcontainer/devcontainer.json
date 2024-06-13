@@ -110,6 +110,5 @@
 			}
 		}
 	},
-	"remoteUser": "root",
-	"postStartCommand": "./.devcontainer/postStart.sh"
+	"remoteUser": "root"
 }
