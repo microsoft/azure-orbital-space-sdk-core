@@ -13,14 +13,14 @@
             "command": "/bin/bash",
             "type": "shell",
             "dependsOn": [
-                "build",
-                "build-debugHostPlugin"
+                "build"
             ],
             "dependsOrder": "sequence",
             "args": [
                 "/spacefx-dev/debugShim-deploy.sh",
                 "--debug_shim",
-                "${DEBUG_SHIM_HOST}"
+                "${DEBUG_SHIM_HOST}",
+                "--disable_plugin_configs"
             ],
             "presentation": {
                 "echo": true,
@@ -51,18 +51,6 @@
                 "showReuseMessage": false,
                 "clear": false
             }
-        },
-        {
-            "label": "build-debugHostPlugin",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "build",
-                "${workspaceFolder}/test/debugHostPlugin/debugHostPlugin.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
-            ],
-            "problemMatcher": "$msCompile"
         },
         {
             "label": "build-integrationTestHostPlugin",
@@ -113,7 +101,8 @@
             "args": [
                 "/spacefx-dev/debugShim-deploy.sh",
                 "--debug_shim",
-                "${DEBUG_SHIM_CLIENT}"
+                "${DEBUG_SHIM_CLIENT}",
+                "--disable_plugin_configs"
             ],
             "presentation": {
                 "echo": true,
@@ -181,7 +170,8 @@
             "args": [
                 "/spacefx-dev/debugShim-deploy.sh",
                 "--debug_shim",
-                "${DEBUG_SHIM_CLIENT}"
+                "${DEBUG_SHIM_CLIENT}",
+                "--disable_plugin_configs"
             ],
             "presentation": {
                 "echo": true,
@@ -243,7 +233,8 @@
             "args": [
                 "/spacefx-dev/debugShim-deploy.sh",
                 "--debug_shim",
-                "${DEBUG_SHIM_CLIENT}"
+                "${DEBUG_SHIM_CLIENT}",
+                "--disable_plugin_configs"
             ],
             "presentation": {
                 "echo": true,
