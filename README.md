@@ -6,10 +6,10 @@ This repository hosts a common code base for all host services, payload apps, pl
 
 Outputs:
 
-| Item                                       | Description                                                                                                                                                  |
-| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `Microsoft.Azure.SpaceFx.Core.1.0.0.nupkg` | DotNet Nuget Package to be used as a base reference package for all other components in the Space Framework                                                  |
-| `Common.proto`                             | A protobuf file to be referenced by all components leveraging the Framework-Core.  Common statuses, file upload/download, and other object types are stored. |
+| Item                                        | Description                                                                                                                                                 |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Microsoft.Azure.SpaceSDK.Core.1.0.0.nupkg` | DotNet Nuget Package to be used as a base reference package for all other components in the Space Framework                                                 |
+| `Common.proto`                              | A protobuf file to be referenced by all components leveraging the SpaceSDK-Core.  Common statuses, file upload/download, and other object types are stored. |
 
 ## Building
 
