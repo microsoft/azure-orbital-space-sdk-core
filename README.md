@@ -27,6 +27,8 @@ Outputs:
     # clone this repo
     git clone https://github.com/microsoft/azure-orbital-space-sdk-core
 
+    cd azure-orbital-space-sdk-setup
+
     # Trigger the build_app.sh from azure-orbital-space-sdk-setup
     /var/spacedev/build/dotnet/build_app.sh \
         --annotation-config azure-orbital-space-sdk-core.yaml \
@@ -34,7 +36,7 @@ Outputs:
         --app-project src/spacesdk-core.csproj \
         --app-version 0.11.0 \
         --output /var/spacedev/tmp/spacesdk-core/output \
-        --repo-dir ${PWD}/azure-orbital-space-sdk-core \
+        --repo-dir ${PWD} \
         --nuget-project src/spacesdk-core.csproj \
         --no-container-build
     ```
@@ -50,7 +52,10 @@ Outputs:
 
 1. Push the artifacts to the container registry
     ```bash
+    # Push the nuget package to the container registry
     /var/spacedev/build/push_build_artifact.sh --artifact /var/spacedev/nuget/core/Microsoft.Azure.SpaceSDK.Core.0.11.0.nupkg --annotation-config azure-orbital-space-sdk-core.yaml --architecture amd64 --artifact-version 0.11.0
+
+    # Push the Common.proto to the container registry
     /var/spacedev/build/push_build_artifact.sh --artifact /var/spacedev/protos/spacefx/protos/common/Common.proto --annotation-config azure-orbital-space-sdk-core.yaml --architecture amd64 --artifact-version 0.11.0
     ```
 
