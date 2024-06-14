@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PackageId>Microsoft.Azure.SpaceFx.Core</PackageId>
+    <PackageId>Microsoft.Azure.SpaceSDK.Core</PackageId>
     <PackageTags>Microsoft Azure Space SDK;Microsoft;Azure;Space;</PackageTags>
     <Description>
-      Base class and common functions used across the entire Azure Space SDK
+      Base class and common functions used across the entire Microsoft Azure Orbital Space SDK
     </Description>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <TargetFramework>net6.0</TargetFramework>
