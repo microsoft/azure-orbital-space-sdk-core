@@ -30,8 +30,6 @@ jobs:
     uses: ./.github/workflows/core-environment.yaml
     with:
       REGISTRY: ghcr.io
-      APP_NAME: coresvc-registry
-      ANNOTATION: azure-orbital-space-sdk-coresvc-registry.yaml
       WORKFLOW_AGENT: spacesdk-ubuntu-2204LTS-arm64
       ARCHITECTURE: arm64
     secrets:
