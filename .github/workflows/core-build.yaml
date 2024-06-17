@@ -1,0 +1,40 @@
+name: core-build
+
+on: 
+    workflow_dispatch:
+    push:
+        branches:
+         - km/add_action
+
+jobs:
+  build-core-amd64:
+    permissions:
+      contents: read
+      packages: write
+
+    uses: ./.github/workflows/core-environment.yaml
+    with:
+      REGISTRY: ghcr.io
+      WORKFLOW_AGENT: ubuntu-latest
+      ARCHITECTURE: amd64
+    secrets:
+      GIT_HUB_USER_NAME: ${{ secrets.GIT_HUB_USER_NAME }}
+      GIT_HUB_USER_TOKEN: ${{ secrets.GIT_HUB_USER_TOKEN }}
+      SETUP_REPO_URL: ${{ secrets.SETUP_REPO_URL }}
+
+  build-core-arm64:
+    permissions:
+      contents: read
+      packages: write
+
+    uses: ./.github/workflows/core-environment.yaml
+    with:
+      REGISTRY: ghcr.io
+      APP_NAME: coresvc-registry
+      ANNOTATION: azure-orbital-space-sdk-coresvc-registry.yaml
+      WORKFLOW_AGENT: spacesdk-ubuntu-2204LTS-arm64
+      ARCHITECTURE: arm64
+    secrets:
+      GIT_HUB_USER_NAME: ${{ secrets.GIT_HUB_USER_NAME }}
+      GIT_HUB_USER_TOKEN: ${{ secrets.GIT_HUB_USER_TOKEN }}
+      SETUP_REPO_URL: ${{ secrets.SETUP_REPO_URL }}
