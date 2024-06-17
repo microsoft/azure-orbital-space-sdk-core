@@ -32,7 +32,7 @@ on:
         SETUP_REPO_URL:
             required: true
 jobs:
-  test-build-app-nuget:
+  build-nuget-package:
     runs-on: ${{ inputs.WORKFLOW_AGENT }}
 
     steps:
