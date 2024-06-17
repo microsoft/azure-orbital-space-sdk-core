@@ -2,7 +2,7 @@ name: Build the core service for a platform
 on: 
     workflow_call:
       inputs:
-        agent:
+        WORKFLOW_AGENT:
           description: 'The agent to run the job on'
           required: true
           type: string
@@ -33,7 +33,7 @@ on:
             required: true
 jobs:
   test-build-app-nuget:
-    runs-on: ${{ inputs.agent }}
+    runs-on: ${{ inputs.WORKFLOW_AGENT }}
 
     steps:
     - uses: actions/checkout@v2
