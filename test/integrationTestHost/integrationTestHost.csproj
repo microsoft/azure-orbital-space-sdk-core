@@ -11,7 +11,7 @@
     <PackageReference Include="Grpc.AspNetCore" Version="2.57.0" />
   </ItemGroup>
   <ItemGroup>
-    <Protobuf Include="/workspaces/spacesdk-core/test/protos/Testing.proto" GrpcServices="Both" Access="Public" ProtoCompile="True" CompileOutputs="True" ProtoRoot="/workspaces/spacesdk-core" OutputDir="obj/Debug/net6.0/"></Protobuf>
+    <Protobuf Include="/workspaces/spacesdk-core/test/protos/Testing.proto" GrpcServices="Both" Access="Public" ProtoCompile="True" CompileOutputs="True" ProtoRoot="/workspaces/spacesdk-core" OutputDir="obj/Debug/net6.0/" AdditionalImportDirs="/var/spacedev/protos/" ></Protobuf>
 	</ItemGroup>
   <ItemGroup>
     <ProjectReference Include="/workspaces/spacesdk-core/src/spacesdk-core.csproj" />

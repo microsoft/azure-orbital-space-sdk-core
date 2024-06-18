@@ -4,7 +4,7 @@ package Microsoft.Azure.SpaceFx.MessageFormats.Testing;
 option csharp_namespace = "Microsoft.Azure.SpaceFx.MessageFormats.Testing";
 
 import "google/protobuf/timestamp.proto";
-import "src/Protos/Common.proto";
+import "spacefx/common/Common.proto";
 
 message SimpleMessage {
    Common.RequestHeader requestHeader = 1;
