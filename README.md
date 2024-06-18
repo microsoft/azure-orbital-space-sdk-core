@@ -6,10 +6,10 @@ This repository hosts a common code base for all host services, payload apps, pl
 
 Outputs:
 
-| Item                                        | Description                                                                                                                                                 |
-| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `Microsoft.Azure.SpaceSDK.Core.1.0.0.nupkg` | DotNet Nuget Package to be used as a base reference package for all other components in the Space Framework                                                 |
-| `Common.proto`                              | A protobuf file to be referenced by all components leveraging the SpaceSDK-Core.  Common statuses, file upload/download, and other object types are stored. |
+| Item                                        | Description                                                                                                 |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `Microsoft.Azure.SpaceSDK.Core.1.0.0.nupkg` | DotNet Nuget Package to be used as a base reference package for all other components in the Space Framework |
+
 
 ## Building
 
@@ -44,19 +44,13 @@ Outputs:
 1. Copy the build artifacts to their locations in /var/spacedev
     ```bash
     sudo mkdir -p /var/spacedev/nuget/core
-    sudo mkdir -p /var/spacedev/protos/spacefx/protos/common
-
     sudo cp /var/spacedev/tmp/spacesdk-core/output/amd64/Microsoft.Azure.SpaceSDK.Core.0.11.0.nupkg /var/spacedev/nuget/core/
-    sudo cp ${PWD}/src/Protos/Common.proto /var/spacedev/protos/spacefx/protos/common/
     ```
 
 1. Push the artifacts to the container registry
     ```bash
     # Push the nuget package to the container registry
     /var/spacedev/build/push_build_artifact.sh --artifact /var/spacedev/nuget/core/Microsoft.Azure.SpaceSDK.Core.0.11.0.nupkg --annotation-config azure-orbital-space-sdk-core.yaml --architecture amd64 --artifact-version 0.11.0
-
-    # Push the Common.proto to the container registry
-    /var/spacedev/build/push_build_artifact.sh --artifact /var/spacedev/protos/spacefx/protos/common/Common.proto --annotation-config azure-orbital-space-sdk-core.yaml --architecture amd64 --artifact-version 0.11.0
     ```
 
 ## Contributing
