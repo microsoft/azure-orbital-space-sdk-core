@@ -100,16 +100,12 @@ jobs:
       shell: bash
       if: always()
       run: |
-      
-        cat /var/spacedev/tmp/test-results.xml
-
-        echo ""
         echo "Running: k3s kubectl cp -n payload-app deploy/${{ inputs.app_name }}-client:/var/spacedev/tmp/test-results.xml ${GITHUB_WORKSPACE}/test-results.xml"
         k3s kubectl cp -n payload-app deploy/${{ inputs.app_name }}-client:/var/spacedev/tmp/test-results.xml ${GITHUB_WORKSPACE}/test-results.xml
-        echo $?
+        ls ${GITHUB_WORKSPACE}
 
     - name: Publish Test Results
       uses: EnricoMi/publish-unit-test-result-action/linux@v2
       if: always()
       with:
-        junit_files:  ${GITHUB_WORKSPACE}/test-results.xml
+        junit_files:  test-results.xml
