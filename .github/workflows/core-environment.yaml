@@ -55,7 +55,7 @@ jobs:
         setup-repo-url: ${{ secrets.SETUP_REPO_URL }}
 
     
-    - uses: microsoft/azure-orbital-space-sdk-github-actions/composite-actions/build-app@km/add_build_app
+    - uses: microsoft/azure-orbital-space-sdk-github-actions/composite-actions/build-app@main
       with:
         ARCHITECTURE: ${{ inputs.ARCHITECTURE }}
         APP_PROJECT: './src/spacesdk-core.csproj'
