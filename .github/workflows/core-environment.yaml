@@ -49,6 +49,5 @@ jobs:
         APP_PROJECT: './src/spacesdk-core.csproj'
         APP_VERSION: ${{ inputs.SPACESDK_VERSION }}
         OUTPUT_DIR: '/var/spacedev/tmp/test-nuget-build'
-        REPO_DIR: '.'
         NUGET_PROJECT: './src/spacesdk-core.csproj'
         NO_CONTAINER_BUILD: 'true'
