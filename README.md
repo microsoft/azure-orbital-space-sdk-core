@@ -35,7 +35,7 @@ Outputs:
         --architecture amd64 \
         --app-project src/spacesdk-core.csproj \
         --app-version 0.11.0 \
-        --output /var/spacedev/tmp/spacesdk-core/output \
+        --output-dir /var/spacedev/tmp/spacesdk-core/output \
         --repo-dir ${PWD} \
         --nuget-project src/spacesdk-core.csproj \
         --no-container-build
