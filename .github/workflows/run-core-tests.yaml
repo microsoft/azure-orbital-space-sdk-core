@@ -6,6 +6,10 @@ on:
           description: 'The agent to run the job on'
           required: true
           type: string
+        app_name:
+          description: 'The name of the app to test'
+          default: spacesdk-core
+          type: string
       secrets:
         GIT_HUB_USER_NAME:
             required: true
@@ -50,11 +54,9 @@ jobs:
     - name: Build Projects
       shell: bash
       run: |
-
-        app_name=spacesdk-core
         
         # Build framework-core
-        docker exec ${app_name} bash -c "dotnet build /workspaces/${{ inputs.service_name }}/src"
+        docker exec ${{ inputs.service_name }} bash -c "dotnet build /workspaces/${{ inputs.service_name }}/src"
         echo $?
 
         # Build integrationTestHostPlugin
