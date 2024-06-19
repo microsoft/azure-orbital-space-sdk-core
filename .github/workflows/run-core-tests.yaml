@@ -78,7 +78,7 @@ jobs:
         echo $?
 
     - name: Publish Test Results
-          uses: EnricoMi/publish-unit-test-result-action@v2
-          if: always()
-          with:
-            junit_files:  /var/spacedev/tmp/test-results.xml
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: always()
+      with:
+        junit_files:  /var/spacedev/tmp/test-results.xml
