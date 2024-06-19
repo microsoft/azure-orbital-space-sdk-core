@@ -1,0 +1,84 @@
+name: test-template-core
+on: 
+    workflow_call:
+      inputs:
+        WORKFLOW_AGENT:
+          description: 'The agent to run the job on'
+          required: true
+          type: string
+      secrets:
+        GIT_HUB_USER_NAME:
+            required: true
+        GIT_HUB_USER_TOKEN:
+            required: true
+        SETUP_REPO_URL:
+            required: true
+
+jobs:
+  build-nuget-package:
+    runs-on: ${{ inputs.WORKFLOW_AGENT }}
+
+    steps:
+    - uses: microsoft/azure-orbital-space-sdk-github-actions/composite-actions/initialize@main
+      with:
+        GIT_HUB_USER_NAME: ${{ secrets.GIT_HUB_USER_NAME }}
+        GIT_HUB_USER_TOKEN: ${{ secrets.GIT_HUB_USER_TOKEN }}
+        SETUP_REPO_URL: ${{ secrets.SETUP_REPO_URL }}
+
+    ## Build the Service's Devcontainer and wait for pods to spin up (unnecessary when devcontainer up composite action is available)
+    - name: Build Devcontainer
+      shell: bash
+      run: |
+        devcontainer up --workspace-folder ${pwd} --workspace-mount-consistency cached --id-label devcontainer.local_folder=${PWD} --default-user-env-probe loginInteractiveShell --build-no-cache --remove-existing-container --mount type=volume,source=vscode,target=/vscode,external=true --update-remote-user-uid-default on --mount-workspace-git-root true
+        echo $?
+
+        # Wait for pods to be ready
+        output=$(k3s kubectl get pods -A -o jsonpath='{range .items[*]}{.status.phase}{"\n"}{end}')
+
+        # Check if the output only contains "Succeeded" and "Running"
+        while read -r line; do
+        if [[ "$line" != "Succeeded" && "$line" != "Running" ]]; then
+            echo "Not all pods are 'Succeeded' or 'Running'..."
+            sleep 5
+            k3s kubectl get pods -A
+            output=$(k3s kubectl get pods -A -o jsonpath='{range .items[*]}{.status.phase}{"\n"}{end}')
+            continue 2
+        fi
+        done <<< "$output"
+        k3s kubectl get pods -A
+
+    - name: Build Projects
+      shell: bash
+      run: |
+
+        app_name=spacesdk-core
+        
+        # Build framework-core
+        docker exec ${app_name} bash -c "dotnet build /workspaces/${{ inputs.service_name }}/src"
+        echo $?
+
+        # Build integrationTestHostPlugin
+        docker exec ${{ inputs.service_name }} bash -c "dotnet build /workspaces/${{ inputs.service_name }}/test/integrationTestHostPlugin"
+        echo $?
+
+        # Build integrationTestHost
+        docker exec ${{ inputs.service_name }} bash -c "dotnet build /workspaces/${{ inputs.service_name }}/test/integrationTestHost"
+        echo $?
+
+        # Build integrationTests
+        docker exec ${{ inputs.service_name }} bash -c "dotnet build /workspaces/${{ inputs.service_name }}/test/integrationTests"
+        echo $?
+
+    - name: Run Integration Tests
+      shell: bash
+      run: |
+        kubectl exec -n payload-app deploy/${{ inputs.service_name }} -- bash -c "/usr/bin/dotnet  /workspaces/${{ inputs.service_name }}/test/integrationTestHost/bin/Debug/net6.0/integrationTestHost.dll" &
+
+        kubectl exec -n payload-app deploy/${{ inputs.service_name }}-client -- bash -c "/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.service_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/var/spacedev/tmp/test-results.xml\""
+        echo $?
+
+    - name: Publish Test Results
+          uses: EnricoMi/publish-unit-test-result-action@v2
+          if: always()
+          with:
+            junit_files:  /var/spacedev/tmp/test-results.xml
