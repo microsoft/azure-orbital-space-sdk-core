@@ -7,7 +7,7 @@ on:
          - km/add_action
 
 jobs:
-  build-core-amd64:
+  build-core-nuget-amd64:
     permissions:
       contents: read
       packages: write
@@ -22,7 +22,7 @@ jobs:
       GIT_HUB_USER_TOKEN: ${{ secrets.GIT_HUB_USER_TOKEN }}
       SETUP_REPO_URL: ${{ secrets.SETUP_REPO_URL }}
 
-  build-core-arm64:
+  build-core-nuget-arm64:
     permissions:
       contents: read
       packages: write
