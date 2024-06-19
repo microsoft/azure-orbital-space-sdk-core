@@ -10,7 +10,9 @@ jobs:
   test-core-amd64:
     permissions:
       contents: read
-      packages: read
+      issues: read
+      checks: write
+      pull-requests: write
 
     uses: ./.github/workflows/run-core-tests.yaml
     with:
@@ -23,7 +25,9 @@ jobs:
   test-core-arm64:
     permissions:
       contents: read
-      packages: read
+      issues: read
+      checks: write
+      pull-requests: write
 
     uses: ./.github/workflows/run-core-tests.yaml
     with:

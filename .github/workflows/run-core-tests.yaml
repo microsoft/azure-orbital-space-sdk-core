@@ -19,8 +19,14 @@ on:
             required: true
 
 jobs:
-  build-nuget-package:
+  build-and-test:
+    name: build-and-test-core-${{ inputs.WORKFLOW_AGENT }}
     runs-on: ${{ inputs.WORKFLOW_AGENT }}
+    permissions:
+      contents: read
+      issues: read
+      checks: write
+      pull-requests: write
 
     steps:
     - uses: microsoft/azure-orbital-space-sdk-github-actions/composite-actions/initialize@main
