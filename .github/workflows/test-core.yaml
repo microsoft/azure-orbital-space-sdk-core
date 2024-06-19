@@ -1,4 +1,4 @@
-name: core-build-nuget
+name: test-core
 
 on: 
     workflow_dispatch:
