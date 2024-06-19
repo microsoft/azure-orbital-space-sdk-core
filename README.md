@@ -44,7 +44,7 @@ Outputs:
 1. Copy the build artifacts to their locations in /var/spacedev
     ```bash
     sudo mkdir -p /var/spacedev/nuget/core
-    sudo cp /var/spacedev/tmp/spacesdk-core/output/amd64/Microsoft.Azure.SpaceSDK.Core.0.11.0.nupkg /var/spacedev/nuget/core/
+    sudo cp /var/spacedev/tmp/spacesdk-core/output/amd64/nuget/Microsoft.Azure.SpaceSDK.Core.0.11.0.nupkg /var/spacedev/nuget/core/
     ```
 
 1. Push the artifacts to the container registry
