@@ -52,7 +52,7 @@ jobs:
         NUGET_PROJECT: './src/spacesdk-core.csproj'
         NO_CONTAINER_BUILD: 'true'
 
-    - uses: microsoft/azure-orbital-space-sdk-github-actions/composite-actions/build-app@km/debug_core
+    - uses: microsoft/azure-orbital-space-sdk-github-actions/composite-actions/push-build-artifact@km/debug_core
       with:
         artifact: /var/spacedev/tmp/core/Microsoft.Azure.SpaceSDK.Core.0.11.0.nupkg
         architecture: ${{ inputs.ARCHITECTURE }}
