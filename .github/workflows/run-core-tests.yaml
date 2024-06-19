@@ -56,27 +56,34 @@ jobs:
       run: |
         
         # Build framework-core
-        docker exec ${{ inputs.service_name }} bash -c "dotnet build /workspaces/${{ inputs.service_name }}/src"
+        echo "Running:  docker exec ${{ inputs.app_name }} bash -c \"dotnet build /workspaces/${{ inputs.app_name }}/src\""
+        docker exec ${{ inputs.app_name }} bash -c "dotnet build /workspaces/${{ inputs.app_name }}/src"
         echo $?
 
         # Build integrationTestHostPlugin
-        docker exec ${{ inputs.service_name }} bash -c "dotnet build /workspaces/${{ inputs.service_name }}/test/integrationTestHostPlugin"
+        echo "Running:  docker exec ${{ inputs.app_name }} bash -c \"dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTestHostPlugin\""
+        docker exec ${{ inputs.app_name }} bash -c "dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTestHostPlugin"
         echo $?
 
         # Build integrationTestHost
-        docker exec ${{ inputs.service_name }} bash -c "dotnet build /workspaces/${{ inputs.service_name }}/test/integrationTestHost"
+        echo "Running:  docker exec ${{ inputs.app_name }} bash -c \"dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTestHost\""
+        docker exec ${{ inputs.app_name }} bash -c "dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTestHost"
         echo $?
 
         # Build integrationTests
-        docker exec ${{ inputs.service_name }} bash -c "dotnet build /workspaces/${{ inputs.service_name }}/test/integrationTests"
+        echo "Running:  docker exec ${{ inputs.app_name }} bash -c \"dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTests\""
+        docker exec ${{ inputs.app_name }} bash -c "dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTests"
         echo $?
 
     - name: Run Integration Tests
       shell: bash
       run: |
-        kubectl exec -n payload-app deploy/${{ inputs.service_name }} -- bash -c "/usr/bin/dotnet  /workspaces/${{ inputs.service_name }}/test/integrationTestHost/bin/Debug/net6.0/integrationTestHost.dll" &
 
-        kubectl exec -n payload-app deploy/${{ inputs.service_name }}-client -- bash -c "/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.service_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/var/spacedev/tmp/test-results.xml\""
+        echo "Running: kubectl exec -n payload-app deploy/${{ inputs.app_name }} -- bash -c \"/usr/bin/dotnet  /workspaces/${{ inputs.app_name }}/test/integrationTestHost/bin/Debug/net6.0/integrationTestHost.dll\" &"
+        kubectl exec -n payload-app deploy/${{ inputs.app_name }} -- bash -c "/usr/bin/dotnet  /workspaces/${{ inputs.app_name }}/test/integrationTestHost/bin/Debug/net6.0/integrationTestHost.dll" &
+        
+        echo "kubectl exec -n payload-app deploy/${{ inputs.app_name }}-client -- bash -c \"/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.app_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/var/spacedev/tmp/test-results.xml\"\""
+        kubectl exec -n payload-app deploy/${{ inputs.app_name }}-client -- bash -c "/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.app_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/var/spacedev/tmp/test-results.xml\""
         echo $?
 
     - name: Publish Test Results
