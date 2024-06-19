@@ -96,8 +96,20 @@ jobs:
         k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }}-client -- bash -c "/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.app_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/var/spacedev/tmp/test-results.xml\""
         echo $?
 
+    - name: Moving Test Results
+      shell: bash
+      if: always()
+      run: |
+      
+        cat /var/spacedev/tmp/test-results.xml
+
+        echo ""
+        echo "Running: k3s kubectl cp -n payload-app deploy/${{ inputs.app_name }}-client:/var/spacedev/tmp/test-results.xml ${GITHUB_WORKSPACE}/test-results.xml"
+        k3s kubectl cp -n payload-app deploy/${{ inputs.app_name }}-client:/var/spacedev/tmp/test-results.xml ${GITHUB_WORKSPACE}/test-results.xml
+        echo $?
+
     - name: Publish Test Results
       uses: EnricoMi/publish-unit-test-result-action/linux@v2
       if: always()
       with:
-        junit_files:  /var/spacedev/tmp/test-results.xml
+        junit_files:  ${GITHUB_WORKSPACE}/test-results.xml
