@@ -1,6 +1,6 @@
 # Azure Orbital Space SDK - Core
 
-[![spacefx-dev-build-publish](https://github.com/microsoft/azure-orbital-space-sdk-core/actions/workflows/devcontainer-feature-build-publish.yml/badge.svg)](https://github.com/microsoft/azure-orbital-space-sdk-core/actions/workflows/devcontainer-feature-build-publish.yml)
+[![core-build-nuget](https://github.com/microsoft/azure-orbital-space-sdk-core/actions/workflows/core-artifacts.yaml/badge.svg?branch=main)](https://github.com/microsoft/azure-orbital-space-sdk-core/actions/workflows/core-artifacts.yaml)
 
 This repository hosts a common code base for all host services, payload apps, platform services.  It scaffolds all message publishing and subscribing used by all services and payload apps.
 

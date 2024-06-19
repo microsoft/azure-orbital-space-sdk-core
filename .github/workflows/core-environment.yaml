@@ -1,0 +1,58 @@
+name: Build the core service for a platform
+on: 
+    workflow_call:
+      inputs:
+        WORKFLOW_AGENT:
+          description: 'The agent to run the job on'
+          required: true
+          type: string
+        VER_DOCKER_MAX:
+          description: 'Docker version to install'
+          required: false
+          type: string
+          default: "26.1.3"
+        REGISTRY: 
+          description: 'Registry to push the image to'
+          required: true
+          type: string 
+          default: 'ghcr.io'
+        ARCHITECTURE:
+          description: 'The architecture to build the image for'
+          required: true
+          type: string
+        SPACESDK_VERSION:
+          description: 'The version of the Space SDK to use'
+          type: string
+          default: '0.11.0'
+      secrets:
+        GIT_HUB_USER_NAME:
+            required: true
+        GIT_HUB_USER_TOKEN:
+            required: true
+        SETUP_REPO_URL:
+            required: true
+jobs:
+  build-nuget-package:
+    runs-on: ${{ inputs.WORKFLOW_AGENT }}
+
+    steps:
+    - uses: microsoft/azure-orbital-space-sdk-github-actions/composite-actions/initialize@main
+      with:
+        GIT_HUB_USER_NAME: ${{ secrets.GIT_HUB_USER_NAME }}
+        GIT_HUB_USER_TOKEN: ${{ secrets.GIT_HUB_USER_TOKEN }}
+        SETUP_REPO_URL: ${{ secrets.SETUP_REPO_URL }}
+
+    
+    - uses: microsoft/azure-orbital-space-sdk-github-actions/composite-actions/build-app@main
+      with:
+        ARCHITECTURE: ${{ inputs.ARCHITECTURE }}
+        APP_PROJECT: './src/spacesdk-core.csproj'
+        APP_VERSION: ${{ inputs.SPACESDK_VERSION }}
+        OUTPUT_DIR: '/var/spacedev/tmp/core'
+        NUGET_PROJECT: './src/spacesdk-core.csproj'
+        NO_CONTAINER_BUILD: 'true'
+
+    - uses: microsoft/azure-orbital-space-sdk-github-actions/composite-actions/push-build-artifact@main
+      with:
+        artifact: /var/spacedev/tmp/core/${{ inputs.ARCHITECTURE}}/nuget/Microsoft.Azure.SpaceSDK.Core.0.11.0.nupkg
+        architecture: ${{ inputs.ARCHITECTURE }}
