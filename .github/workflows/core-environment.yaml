@@ -42,7 +42,6 @@ jobs:
         GIT_HUB_USER_TOKEN: ${{ secrets.GIT_HUB_USER_TOKEN }}
         SETUP_REPO_URL: ${{ secrets.SETUP_REPO_URL }}
 
-    
     - uses: microsoft/azure-orbital-space-sdk-github-actions/composite-actions/build-app@main
       with:
         ARCHITECTURE: ${{ inputs.ARCHITECTURE }}
@@ -52,7 +51,14 @@ jobs:
         NUGET_PROJECT: './src/spacesdk-core.csproj'
         NO_CONTAINER_BUILD: 'true'
 
+    - name: Move file to staging directory
+      shell: bash
+      run: |
+        mkdir -p /var/spacedev/nuget/core
+        mv /var/spacedev/tmp/core/${{ inputs.ARCHITECTURE}}/nuget/Microsoft.Azure.SpaceSDK.Core.0.11.0.nupkg /var/spacedev/nuget/core/Microsoft.Azure.SpaceSDK.Core.0.11.0.nupkg
+        tree /var/spacedev/nuget/core
+
     - uses: microsoft/azure-orbital-space-sdk-github-actions/composite-actions/push-build-artifact@main
       with:
-        artifact: /var/spacedev/tmp/core/${{ inputs.ARCHITECTURE}}/nuget/Microsoft.Azure.SpaceSDK.Core.0.11.0.nupkg
+        artifact: /var/spacedev/nuget/core/nuget/Microsoft.Azure.SpaceSDK.Core.0.11.0.nupkg
         architecture: ${{ inputs.ARCHITECTURE }}
