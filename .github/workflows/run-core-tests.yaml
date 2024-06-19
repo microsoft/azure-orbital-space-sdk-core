@@ -100,8 +100,11 @@ jobs:
       shell: bash
       if: always()
       run: |
-        echo "Running: k3s kubectl cp -n payload-app deploy/${{ inputs.app_name }}-client:/var/spacedev/tmp/test-results.xml ${GITHUB_WORKSPACE}/test-results.xml"
-        k3s kubectl cp -n payload-app deploy/${{ inputs.app_name }}-client:/var/spacedev/tmp/test-results.xml ${GITHUB_WORKSPACE}/test-results.xml
+
+        pod_name=$(kubectl get pods -l app=${{ inputs.app_name }} -o jsonpath="{.items[0].metadata.name}")
+
+        echo "Running: k3s kubectl cp -n payload-app/${pod_name}-client:/var/spacedev/tmp/test-results.xml ${GITHUB_WORKSPACE}/test-results.xml"
+        k3s kubectl cp payload-app/${pod_name}-client:/var/spacedev/tmp/test-results.xml ${GITHUB_WORKSPACE}/test-results.xml
         ls ${GITHUB_WORKSPACE}
 
     - name: Publish Test Results
