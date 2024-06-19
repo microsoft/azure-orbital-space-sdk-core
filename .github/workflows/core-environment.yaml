@@ -55,7 +55,7 @@ jobs:
       shell: bash
       run: |
         mkdir -p /var/spacedev/nuget/core
-        mv /var/spacedev/tmp/core/${{ inputs.ARCHITECTURE}}/nuget/Microsoft.Azure.SpaceSDK.Core.0.11.0.nupkg /var/spacedev/nuget/core/Microsoft.Azure.SpaceSDK.Core.0.11.0.nupkg
+        sudo mv /var/spacedev/tmp/core/${{ inputs.ARCHITECTURE}}/nuget/Microsoft.Azure.SpaceSDK.Core.0.11.0.nupkg /var/spacedev/nuget/core/Microsoft.Azure.SpaceSDK.Core.0.11.0.nupkg
         tree /var/spacedev/nuget/core
 
     - uses: microsoft/azure-orbital-space-sdk-github-actions/composite-actions/push-build-artifact@main
