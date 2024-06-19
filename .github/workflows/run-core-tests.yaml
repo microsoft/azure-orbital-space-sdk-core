@@ -78,12 +78,16 @@ jobs:
     - name: Run Integration Tests
       shell: bash
       run: |
-
-        echo "Running: kubectl exec -n payload-app deploy/${{ inputs.app_name }} -- bash -c \"/usr/bin/dotnet  /workspaces/${{ inputs.app_name }}/test/integrationTestHost/bin/Debug/net6.0/integrationTestHost.dll\" &"
-        kubectl exec -n payload-app deploy/${{ inputs.app_name }} -- bash -c "/usr/bin/dotnet  /workspaces/${{ inputs.app_name }}/test/integrationTestHost/bin/Debug/net6.0/integrationTestHost.dll" &
         
-        echo "kubectl exec -n payload-app deploy/${{ inputs.app_name }}-client -- bash -c \"/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.app_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/var/spacedev/tmp/test-results.xml\"\""
-        kubectl exec -n payload-app deploy/${{ inputs.app_name }}-client -- bash -c "/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.app_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/var/spacedev/tmp/test-results.xml\""
+        echo "environment variables:"
+        printenv
+
+        echo ""
+        echo "Running: k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }} -- bash -c \"/usr/bin/dotnet  /workspaces/${{ inputs.app_name }}/test/integrationTestHost/bin/Debug/net6.0/integrationTestHost.dll\" &"
+        k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }} -- bash -c "/usr/bin/dotnet  /workspaces/${{ inputs.app_name }}/test/integrationTestHost/bin/Debug/net6.0/integrationTestHost.dll" &
+        
+        echo "k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }}-client -- bash -c \"/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.app_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/var/spacedev/tmp/test-results.xml\"\""
+        k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }}-client -- bash -c "/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.app_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/var/spacedev/tmp/test-results.xml\""
         echo $?
 
     - name: Publish Test Results
