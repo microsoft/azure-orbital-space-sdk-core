@@ -1,4 +1,4 @@
-name: Build the core service for a platform
+name: environment-template-core
 on: 
     workflow_call:
       inputs:
