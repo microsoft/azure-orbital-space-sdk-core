@@ -29,7 +29,7 @@ jobs:
     - name: Build Devcontainer
       shell: bash
       run: |
-        devcontainer up --workspace-folder ${pwd} --workspace-mount-consistency cached --id-label devcontainer.local_folder=${PWD} --default-user-env-probe loginInteractiveShell --build-no-cache --remove-existing-container --mount type=volume,source=vscode,target=/vscode,external=true --update-remote-user-uid-default on --mount-workspace-git-root true
+        devcontainer up --workspace-folder ${PWD} --workspace-mount-consistency cached --id-label devcontainer.local_folder=${PWD} --default-user-env-probe loginInteractiveShell --build-no-cache --remove-existing-container --mount type=volume,source=vscode,target=/vscode,external=true --update-remote-user-uid-default on --mount-workspace-git-root true
         echo $?
 
         # Wait for pods to be ready
