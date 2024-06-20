@@ -51,20 +51,20 @@ jobs:
             --mount-workspace-git-root true
         echo $?
 
-        # Wait for pods to be ready
-        output=$(k3s kubectl get pods -A -o jsonpath='{range .items[*]}{.status.phase}{"\n"}{end}')
+        pod_status=$(kubectl get pods -n payload-app -l app=${{ inputs.app_name }} --output=json | jq -r '.items[0].status.phase')
+        pod_client_status=$(kubectl get pods -n payload-app -l app=${{ inputs.app_name }} --output=json | jq -r '.items[0].status.phase')
 
-        # Check if the output only contains "Succeeded" and "Running"
-        while read -r line; do
-        if [[ "$line" != "Succeeded" && "$line" != "Running" ]]; then
-            echo "Not all pods are 'Succeeded' or 'Running'..."
-            sleep 5
-            k3s kubectl get pods -A
-            output=$(k3s kubectl get pods -A -o jsonpath='{range .items[*]}{.status.phase}{"\n"}{end}')
-            continue 2
-        fi
-        done <<< "$output"
-        k3s kubectl get pods -A
+        while [[ -z "$pod_status" || "$pod_status" != "Running" ]] || [[ -z "$pod_client_status" || "$pod_client_status" != "Running" ]]; do
+            echo "Checking pod statuses..."
+            pod_status=$(kubectl get pods -n payload-app -l app=${{ inputs.app_name }} --output=json | jq -r '.items[0].status.phase')
+            pod_client_status=$(kubectl get pods -n payload-app -l app=${{ inputs.app_name }} --output=json | jq -r '.items[0].status.phase')
+
+            if [[ -z "$pod_status" || "$pod_status" != "Running" ]] || [[ -z "$pod_client_status" || "$pod_client_status" != "Running" ]]; then
+                echo "One or both pods are not 'Running'. POD: '$pod_status'.  POD_CLIENT_STATUS: '$pod_client_status' ..."
+                k3s kubectl get pods -A
+                sleep 5 # Wait for 5 seconds before checking again
+            fi
+        done
 
     - name: Build Projects
       shell: bash
