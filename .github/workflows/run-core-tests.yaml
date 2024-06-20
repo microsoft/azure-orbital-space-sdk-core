@@ -102,9 +102,19 @@ jobs:
       run: |
 
         echo "Starting the integration test host..."
+        echo "Running: docker exec ${DEV_CONTAINER_NAME} bash -c \"/spacefx-dev/debugShim-deploy.sh --debug_shim ${{ inputs.app_name }}\""
+        docker exec ${DEV_CONTAINER_NAME} bash -c "/spacefx-dev/debugShim-deploy.sh --debug_shim ${{ inputs.app_name }}"
+
         echo "Running: k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }} -- bash -c \"/usr/bin/dotnet  /workspaces/${{ inputs.app_name }}/test/integrationTestHost/bin/Debug/net6.0/integrationTestHost.dll\" &"
         k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }} -- bash -c "/usr/bin/dotnet  /workspaces/${{ inputs.app_name }}/test/integrationTestHost/bin/Debug/net6.0/integrationTestHost.dll" &
         host_pid=$!
+
+        echo "Waiting for the integration test host to start..."
+        sleep 5
+
+        echo "Starting the integration test"
+        echo "Running: docker exec ${DEV_CONTAINER_NAME} bash -c \"/spacefx-dev/debugShim-deploy.sh --debug_shim ${{ inputs.app_name }}-client --disable_plugin_configs\""
+        docker exec ${DEV_CONTAINER_NAME} bash -c "/spacefx-dev/debugShim-deploy.sh --debug_shim ${{ inputs.app_name }}-client --disable_plugin_configs"
 
         echo "k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }}-client -- bash -c \"/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.app_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/var/spacedev/tmp/test-results.xml\"\" &"
         k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }}-client -- bash -c "/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.app_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/var/spacedev/tmp/test-results.xml\"" &
