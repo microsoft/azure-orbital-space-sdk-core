@@ -1,5 +1,5 @@
 name: test-template-core
-on: 
+on:
     workflow_call:
       inputs:
         WORKFLOW_AGENT:
@@ -17,6 +17,9 @@ on:
             required: true
         SETUP_REPO_URL:
             required: true
+    push:
+      branches:
+      - ryan-workflow-test
 
 jobs:
   build-and-test:
@@ -60,7 +63,7 @@ jobs:
     - name: Build Projects
       shell: bash
       run: |
-        
+
         # Build framework-core
         echo "Running:  docker exec ${{ inputs.app_name }} bash -c \"dotnet build /workspaces/${{ inputs.app_name }}/src\""
         docker exec ${{ inputs.app_name }} bash -c "dotnet build /workspaces/${{ inputs.app_name }}/src"
@@ -84,7 +87,7 @@ jobs:
     - name: Run Integration Tests
       shell: bash
       run: |
-        
+
         echo "environment variables:"
         printenv
 
@@ -97,7 +100,7 @@ jobs:
         k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }}-client -- bash -c "/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.app_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/var/spacedev/tmp/test-results.xml\""
         cat /var/spacedev/tmp/test-results.xml
         echo $?
-        
+
         # client_pid=($!)
 
         # local return_code
@@ -109,7 +112,7 @@ jobs:
         #     exit 1
         # fi
 
-        
+
 
     - name: Moving Test Results
       shell: bash
