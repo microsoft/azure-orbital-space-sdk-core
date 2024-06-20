@@ -161,13 +161,13 @@ jobs:
         kill -9 $host_pid
 
         echo "Outputting logs from the integration test host..."
-        cat ${PWD}/.git/logs${{ inputs.app_name }}.log.stdout
+        cat ${PWD}/.git/logs/${{ inputs.app_name }}.log.stdout
         echo ""
         echo "--------------------"
         echo ""
 
         echo "Outputting logs from the integration test client..."
-        cat ${PWD}/.git/logs${{ inputs.app_name }}-client.log.stdout
+        cat ${PWD}/.git/logs/${{ inputs.app_name }}-client.log.stdout
         echo ""
         echo "--------------------"
         echo ""
