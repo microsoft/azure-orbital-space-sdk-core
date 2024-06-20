@@ -185,13 +185,9 @@ jobs:
             exit 1
         fi
 
+        # moving test-results.xml to the root of the workspace
+        mv .git/test-results.xml ${PWD}
 
-
-    - name: Moving Test Results
-      shell: bash
-      if: always()
-      run: |
-        cat ${PWD}/.git/test-results.xml
 
     - name: Publish Test Results
       uses: EnricoMi/publish-unit-test-result-action/linux@v2
