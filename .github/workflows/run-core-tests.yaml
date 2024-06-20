@@ -101,6 +101,15 @@ jobs:
       shell: bash
       run: |
 
+        [[ ! -f /var/spacedev/tmp/spacesdk-core/container_info.json ]] && echo "container_info.json not found.  Dev container start up failed" && exit 1
+        echo "Calculating container name from container_info.json..."
+        DEV_CONTAINER_NAME=$(jq -r </var/spacedev/tmp/spacesdk-core/container_info.json '.[0].Name')
+
+        # Remove the first character if it is a slash
+        [[ ${DEV_CONTAINER_NAME:0:1} == "/" ]] && DEV_CONTAINER_NAME="${DEV_CONTAINER_NAME:1}"
+
+        echo "Container Name: $DEV_CONTAINER_NAME"
+
         echo "Starting the integration test host..."
         echo "Running: docker exec ${DEV_CONTAINER_NAME} bash -c \"/spacefx-dev/debugShim-deploy.sh --debug_shim ${{ inputs.app_name }}\""
         docker exec ${DEV_CONTAINER_NAME} bash -c "/spacefx-dev/debugShim-deploy.sh --debug_shim ${{ inputs.app_name }}"
