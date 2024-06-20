@@ -40,7 +40,15 @@ jobs:
     - name: Build Devcontainer
       shell: bash
       run: |
-        devcontainer up --workspace-folder ${PWD} --workspace-mount-consistency cached --id-label devcontainer.local_folder=${PWD} --default-user-env-probe loginInteractiveShell --build-no-cache --remove-existing-container --mount type=volume,source=vscode,target=/vscode,external=true --update-remote-user-uid-default on --mount-workspace-git-root true
+        devcontainer up --workspace-folder ${PWD} \
+            --workspace-mount-consistency cached \
+            --id-label devcontainer.local_folder=${PWD} \
+            --default-user-env-probe loginInteractiveShell \
+            --build-no-cache \
+            --remove-existing-container \
+            --mount type=volume,source=vscode,target=/vscode,external=true \
+            --update-remote-user-uid-default on \
+            --mount-workspace-git-root true
         echo $?
 
         # Wait for pods to be ready
@@ -61,54 +69,61 @@ jobs:
     - name: Build Projects
       shell: bash
       run: |
+        [[ ! -f /var/spacedev/tmp/spacesdk-core/container_info.json ]] && echo "container_info.json not found.  Dev container start up failed" && exit 1
+        echo "Calculating container name from container_info.json..."
+        DEV_CONTAINER_NAME=$(jq -r </var/spacedev/tmp/spacesdk-core/container_info.json '.[0].Name')
 
-        # Build framework-core
-        echo "Running:  docker exec ${{ inputs.app_name }} bash -c \"dotnet build /workspaces/${{ inputs.app_name }}/src\""
-        docker exec ${{ inputs.app_name }} bash -c "dotnet build /workspaces/${{ inputs.app_name }}/src"
-        echo $?
+        # Remove the first character if it is a slash
+        [[ ${DEV_CONTAINER_NAME:0:1} == "/" ]] && DEV_CONTAINER_NAME="${DEV_CONTAINER_NAME:1}"
+
+        echo "Container Name: $DEV_CONTAINER_NAME"
+
+        # Build the app
+        echo "Running:  docker exec ${DEV_CONTAINER_NAME} bash -c \"dotnet build /workspaces/${{ inputs.app_name }}/src\""
+        docker exec ${DEV_CONTAINER_NAME} bash -c "dotnet build /workspaces/${{ inputs.app_name }}/src"
 
         # Build integrationTestHostPlugin
-        echo "Running:  docker exec ${{ inputs.app_name }} bash -c \"dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTestHostPlugin\""
-        docker exec ${{ inputs.app_name }} bash -c "dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTestHostPlugin"
+        echo "Running:  docker exec ${DEV_CONTAINER_NAME} bash -c \"dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTestHostPlugin\""
+        docker exec ${DEV_CONTAINER_NAME} bash -c "dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTestHostPlugin"
         echo $?
 
         # Build integrationTestHost
-        echo "Running:  docker exec ${{ inputs.app_name }} bash -c \"dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTestHost\""
-        docker exec ${{ inputs.app_name }} bash -c "dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTestHost"
+        echo "Running:  docker exec ${DEV_CONTAINER_NAME} bash -c \"dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTestHost\""
+        docker exec ${DEV_CONTAINER_NAME} bash -c "dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTestHost"
         echo $?
 
         # Build integrationTests
-        echo "Running:  docker exec ${{ inputs.app_name }} bash -c \"dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTests\""
-        docker exec ${{ inputs.app_name }} bash -c "dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTests"
+        echo "Running:  docker exec ${DEV_CONTAINER_NAME} bash -c \"dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTests\""
+        docker exec ${DEV_CONTAINER_NAME} bash -c "dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTests"
         echo $?
 
     - name: Run Integration Tests
       shell: bash
       run: |
+        tree /var/spacedev
+        # echo "environment variables:"
+        # printenv
 
-        echo "environment variables:"
-        printenv
+        # echo ""
+        # echo "Running: k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }} -- bash -c \"/usr/bin/dotnet  /workspaces/${{ inputs.app_name }}/test/integrationTestHost/bin/Debug/net6.0/integrationTestHost.dll\" &"
+        # k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }} -- bash -c "/usr/bin/dotnet  /workspaces/${{ inputs.app_name }}/test/integrationTestHost/bin/Debug/net6.0/integrationTestHost.dll" &
+        # host_pid=($!)
 
-        echo ""
-        echo "Running: k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }} -- bash -c \"/usr/bin/dotnet  /workspaces/${{ inputs.app_name }}/test/integrationTestHost/bin/Debug/net6.0/integrationTestHost.dll\" &"
-        k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }} -- bash -c "/usr/bin/dotnet  /workspaces/${{ inputs.app_name }}/test/integrationTestHost/bin/Debug/net6.0/integrationTestHost.dll" &
-        host_pid=($!)
+        # echo "k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }}-client -- bash -c \"/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.app_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/var/spacedev/tmp/test-results.xml\"\""
+        # k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }}-client -- bash -c "/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.app_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/var/spacedev/tmp/test-results.xml\""
+        # cat /var/spacedev/tmp/test-results.xml
+        # echo $?
 
-        echo "k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }}-client -- bash -c \"/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.app_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/var/spacedev/tmp/test-results.xml\"\""
-        k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }}-client -- bash -c "/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.app_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/var/spacedev/tmp/test-results.xml\""
-        cat /var/spacedev/tmp/test-results.xml
-        echo $?
+        # # client_pid=($!)
 
-        # client_pid=($!)
-
-        # local return_code
-        # wait "$client_pid"
-        # return_code=$?
-        # if [[ $return_code -gt 0 ]]; then
-        #     echo "Integration Tests Failed with return code: $return_code"
-        #     cat /var/spacedev/tmp/test-results.xml
-        #     exit 1
-        # fi
+        # # local return_code
+        # # wait "$client_pid"
+        # # return_code=$?
+        # # if [[ $return_code -gt 0 ]]; then
+        # #     echo "Integration Tests Failed with return code: $return_code"
+        # #     cat /var/spacedev/tmp/test-results.xml
+        # #     exit 1
+        # # fi
 
 
 
@@ -116,12 +131,12 @@ jobs:
       shell: bash
       if: always()
       run: |
+        echo "testing"
+        # pod_name=$(k3s kubectl get pods -n payload-app -l app=${{ inputs.app_name }} -o jsonpath="{.items[0].metadata.name}")
 
-        pod_name=$(k3s kubectl get pods -n payload-app -l app=${{ inputs.app_name }} -o jsonpath="{.items[0].metadata.name}")
-
-        echo "Running: k3s kubectl cp -n payload-app/${pod_name}-client:/var/spacedev/tmp/test-results.xml ${GITHUB_WORKSPACE}/test-results.xml"
-        k3s kubectl cp payload-app/${pod_name}-client:/var/spacedev/tmp/test-results.xml ${GITHUB_WORKSPACE}/test-results.xml
-        ls ${GITHUB_WORKSPACE}
+        # echo "Running: k3s kubectl cp -n payload-app/${pod_name}-client:/var/spacedev/tmp/test-results.xml ${GITHUB_WORKSPACE}/test-results.xml"
+        # k3s kubectl cp payload-app/${pod_name}-client:/var/spacedev/tmp/test-results.xml ${GITHUB_WORKSPACE}/test-results.xml
+        # ls ${GITHUB_WORKSPACE}
 
     - name: Publish Test Results
       uses: EnricoMi/publish-unit-test-result-action/linux@v2
