@@ -114,6 +114,9 @@ jobs:
         echo "Running: docker exec ${DEV_CONTAINER_NAME} bash -c \"/spacefx-dev/debugShim-deploy.sh --debug_shim ${{ inputs.app_name }}\""
         docker exec ${DEV_CONTAINER_NAME} bash -c "/spacefx-dev/debugShim-deploy.sh --debug_shim ${{ inputs.app_name }}"
 
+        mkdir -p /var/spacedev/tmp
+        chmod 777 /var/spacedev/tmp
+
         echo "Running: k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }} -- bash -c \"/usr/bin/dotnet  /workspaces/${{ inputs.app_name }}/test/integrationTestHost/bin/Debug/net6.0/integrationTestHost.dll\" &"
         (
             # Reroute the stdout to a file so we can uniquely identify this run
