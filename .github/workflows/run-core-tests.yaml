@@ -17,9 +17,7 @@ on:
             required: true
         SETUP_REPO_URL:
             required: true
-    push:
-      branches:
-      - ryan-workflow-test
+
 
 jobs:
   build-and-test:
