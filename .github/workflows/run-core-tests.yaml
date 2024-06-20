@@ -139,7 +139,7 @@ jobs:
         echo "Killing the integration test host..."
         kill -9 $host_pid
 
-        if [[ ! -f "/workspaces/${{ inputs.app_name }}/.git/test-results.xml" ]]; then
+        if [[ ! -f "${PWD}/.git/test-results.xml" ]]; then
           echo "Test results file not found."
           tree /var/spacedev
           exit 1
@@ -156,7 +156,7 @@ jobs:
       shell: bash
       if: always()
       run: |
-        cat /workspaces/${{ inputs.app_name }}/.git/test-results.xml
+        cat ${PWD}/.git/test-results.xml
 
     - name: Publish Test Results
       uses: EnricoMi/publish-unit-test-result-action/linux@v2
