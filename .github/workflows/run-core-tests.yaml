@@ -119,7 +119,7 @@ jobs:
             # Reroute the stdout to a file so we can uniquely identify this run
             trap "" HUP
             exec 0< /dev/null
-            exec 1> "${SPACEFX_DIR}/tmp/${{ inputs.app_name }}.log.stdout"
+            exec 1> "/var/spacedev/tmp/${{ inputs.app_name }}.log.stdout"
             exec 2>&1
 
             k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }} -- bash -c "/usr/bin/dotnet  /workspaces/${{ inputs.app_name }}/test/integrationTestHost/bin/Debug/net6.0/integrationTestHost.dll"
@@ -139,7 +139,7 @@ jobs:
             # Reroute the stdout to a file so we can uniquely identify this run
             trap "" HUP
             exec 0< /dev/null
-            exec 1> "${SPACEFX_DIR}/tmp/${{ inputs.app_name }}-client.log.stdout"
+            exec 1> "/var/spacedev/tmp/${{ inputs.app_name }}-client.log.stdout"
             exec 2>&1
 
             k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }}-client -- bash -c "/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.app_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/workspaces/${{ inputs.app_name }}/.git/test-results.xml\""
@@ -149,7 +149,7 @@ jobs:
 
         echo "Waiting for the integration test host to finish..."
 
-        client_pid_return_code
+        client_pid_return_code=0
         wait "$client_pid"
         client_pid_return_code=$?
 
@@ -158,13 +158,13 @@ jobs:
         kill -9 $host_pid
 
         echo "Outputting logs from the integration test host..."
-        cat ${SPACEFX_DIR}/tmp/${{ inputs.app_name }}.log.stdout
+        cat /var/spacedev/tmp/${{ inputs.app_name }}.log.stdout
         echo ""
         echo "--------------------"
         echo ""
 
         echo "Outputting logs from the integration test client..."
-        cat ${SPACEFX_DIR}/tmp/${{ inputs.app_name }}-client.log.stdout
+        cat /var/spacedev/tmp/${{ inputs.app_name }}-client.log.stdout
         echo ""
         echo "--------------------"
         echo ""
