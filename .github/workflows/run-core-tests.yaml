@@ -1,5 +1,5 @@
 name: test-template-core
-on: 
+on:
     workflow_call:
       inputs:
         WORKFLOW_AGENT:
@@ -17,6 +17,7 @@ on:
             required: true
         SETUP_REPO_URL:
             required: true
+
 
 jobs:
   build-and-test:
@@ -39,85 +40,123 @@ jobs:
     - name: Build Devcontainer
       shell: bash
       run: |
-        devcontainer up --workspace-folder ${PWD} --workspace-mount-consistency cached --id-label devcontainer.local_folder=${PWD} --default-user-env-probe loginInteractiveShell --build-no-cache --remove-existing-container --mount type=volume,source=vscode,target=/vscode,external=true --update-remote-user-uid-default on --mount-workspace-git-root true
+        devcontainer up --workspace-folder ${PWD} \
+            --workspace-mount-consistency cached \
+            --id-label devcontainer.local_folder=${PWD} \
+            --default-user-env-probe loginInteractiveShell \
+            --build-no-cache \
+            --remove-existing-container \
+            --mount type=volume,source=vscode,target=/vscode,external=true \
+            --update-remote-user-uid-default on \
+            --mount-workspace-git-root true
         echo $?
 
-        # Wait for pods to be ready
-        output=$(k3s kubectl get pods -A -o jsonpath='{range .items[*]}{.status.phase}{"\n"}{end}')
+        pod_status=$(k3s kubectl get pods -n payload-app -l app=${{ inputs.app_name }} --output=json | jq -r '.items[0].status.phase')
+        pod_client_status=$(k3s kubectl get pods -n payload-app -l app=${{ inputs.app_name }} --output=json | jq -r '.items[0].status.phase')
 
-        # Check if the output only contains "Succeeded" and "Running"
-        while read -r line; do
-        if [[ "$line" != "Succeeded" && "$line" != "Running" ]]; then
-            echo "Not all pods are 'Succeeded' or 'Running'..."
-            sleep 5
-            k3s kubectl get pods -A
-            output=$(k3s kubectl get pods -A -o jsonpath='{range .items[*]}{.status.phase}{"\n"}{end}')
-            continue 2
-        fi
-        done <<< "$output"
-        k3s kubectl get pods -A
+        while [[ -z "$pod_status" || "$pod_status" != "Running" ]] || [[ -z "$pod_client_status" || "$pod_client_status" != "Running" ]]; do
+            echo "Checking pod statuses..."
+            pod_status=$(k3s kubectl get pods -n payload-app -l app=${{ inputs.app_name }} --output=json | jq -r '.items[0].status.phase')
+            pod_client_status=$(k3s kubectl get pods -n payload-app -l app=${{ inputs.app_name }} --output=json | jq -r '.items[0].status.phase')
+
+            if [[ -z "$pod_status" || "$pod_status" != "Running" ]] || [[ -z "$pod_client_status" || "$pod_client_status" != "Running" ]]; then
+                echo "One or both pods are not 'Running'. POD: '$pod_status'.  POD_CLIENT_STATUS: '$pod_client_status' ..."
+                k3s kubectl get pods -A
+                sleep 5 # Wait for 5 seconds before checking again
+            fi
+        done
 
     - name: Build Projects
       shell: bash
       run: |
-        
-        # Build framework-core
-        echo "Running:  docker exec ${{ inputs.app_name }} bash -c \"dotnet build /workspaces/${{ inputs.app_name }}/src\""
-        docker exec ${{ inputs.app_name }} bash -c "dotnet build /workspaces/${{ inputs.app_name }}/src"
-        echo $?
+        [[ ! -f /var/spacedev/tmp/spacesdk-core/container_info.json ]] && echo "container_info.json not found.  Dev container start up failed" && exit 1
+        echo "Calculating container name from container_info.json..."
+        DEV_CONTAINER_NAME=$(jq -r </var/spacedev/tmp/spacesdk-core/container_info.json '.[0].Name')
+
+        # Remove the first character if it is a slash
+        [[ ${DEV_CONTAINER_NAME:0:1} == "/" ]] && DEV_CONTAINER_NAME="${DEV_CONTAINER_NAME:1}"
+
+        echo "Container Name: $DEV_CONTAINER_NAME"
+
+        # Build the app
+        echo "Running:  docker exec ${DEV_CONTAINER_NAME} bash -c \"dotnet build /workspaces/${{ inputs.app_name }}/src\""
+        docker exec ${DEV_CONTAINER_NAME} bash -c "dotnet build /workspaces/${{ inputs.app_name }}/src"
 
         # Build integrationTestHostPlugin
-        echo "Running:  docker exec ${{ inputs.app_name }} bash -c \"dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTestHostPlugin\""
-        docker exec ${{ inputs.app_name }} bash -c "dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTestHostPlugin"
+        echo "Running:  docker exec ${DEV_CONTAINER_NAME} bash -c \"dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTestHostPlugin\""
+        docker exec ${DEV_CONTAINER_NAME} bash -c "dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTestHostPlugin"
         echo $?
 
         # Build integrationTestHost
-        echo "Running:  docker exec ${{ inputs.app_name }} bash -c \"dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTestHost\""
-        docker exec ${{ inputs.app_name }} bash -c "dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTestHost"
+        echo "Running:  docker exec ${DEV_CONTAINER_NAME} bash -c \"dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTestHost\""
+        docker exec ${DEV_CONTAINER_NAME} bash -c "dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTestHost"
         echo $?
 
         # Build integrationTests
-        echo "Running:  docker exec ${{ inputs.app_name }} bash -c \"dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTests\""
-        docker exec ${{ inputs.app_name }} bash -c "dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTests"
+        echo "Running:  docker exec ${DEV_CONTAINER_NAME} bash -c \"dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTests\""
+        docker exec ${DEV_CONTAINER_NAME} bash -c "dotnet build /workspaces/${{ inputs.app_name }}/test/integrationTests"
         echo $?
 
     - name: Run Integration Tests
       shell: bash
       run: |
-        
-        echo "environment variables:"
-        printenv
 
-        echo ""
+        [[ ! -f /var/spacedev/tmp/spacesdk-core/container_info.json ]] && echo "container_info.json not found.  Dev container start up failed" && exit 1
+        echo "Calculating container name from container_info.json..."
+        DEV_CONTAINER_NAME=$(jq -r </var/spacedev/tmp/spacesdk-core/container_info.json '.[0].Name')
+
+        # Remove the first character if it is a slash
+        [[ ${DEV_CONTAINER_NAME:0:1} == "/" ]] && DEV_CONTAINER_NAME="${DEV_CONTAINER_NAME:1}"
+
+        echo "Container Name: $DEV_CONTAINER_NAME"
+
+        echo "Starting the integration test host..."
+        echo "Running: docker exec ${DEV_CONTAINER_NAME} bash -c \"/spacefx-dev/debugShim-deploy.sh --debug_shim ${{ inputs.app_name }}\""
+        docker exec ${DEV_CONTAINER_NAME} bash -c "/spacefx-dev/debugShim-deploy.sh --debug_shim ${{ inputs.app_name }}"
+
         echo "Running: k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }} -- bash -c \"/usr/bin/dotnet  /workspaces/${{ inputs.app_name }}/test/integrationTestHost/bin/Debug/net6.0/integrationTestHost.dll\" &"
         k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }} -- bash -c "/usr/bin/dotnet  /workspaces/${{ inputs.app_name }}/test/integrationTestHost/bin/Debug/net6.0/integrationTestHost.dll" &
-        
+        host_pid=$!
+
+        echo "Waiting for the integration test host to start..."
+        sleep 5
+
+        echo "Starting the integration test"
+        echo "Running: docker exec ${DEV_CONTAINER_NAME} bash -c \"/spacefx-dev/debugShim-deploy.sh --debug_shim ${{ inputs.app_name }}-client --disable_plugin_configs\""
+        docker exec ${DEV_CONTAINER_NAME} bash -c "/spacefx-dev/debugShim-deploy.sh --debug_shim ${{ inputs.app_name }}-client --disable_plugin_configs"
 
         echo "k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }}-client -- bash -c \"/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.app_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/var/spacedev/tmp/test-results.xml\"\" &"
-        k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }}-client -- bash -c "/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.app_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/var/spacedev/tmp/test-results.xml\"" &
-        client_pid=($!)
+        k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }}-client -- bash -c "/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.app_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/workspaces/${{ inputs.app_name }}/.git/test-results.xml\"" &
+        client_pid=$!
 
-        local return_code
+        echo "Waiting for the integration test host to finish..."
+
+        local client_pid_return_code
         wait "$client_pid"
-        return_code=$?
-        if [[ $return_code -gt 0 ]]; then
-            echo "Integration Tests Failed with return code: $return_code"
-            cat /var/spacedev/tmp/test-results.xml
+        client_pid_return_code=$?
+
+        echo "Client process complete with return code: $client_pid_return_code"
+        echo "Killing the integration test host..."
+        kill -9 $host_pid
+
+        if [[ ! -f "${PWD}/.git/test-results.xml" ]]; then
+          echo "Test results file not found."
+          tree /var/spacedev
+          exit 1
+        fi
+
+        if [[ $client_pid_return_code -gt 0 ]]; then
+            echo "Integration tests failed.  Exiting with code 1."
             exit 1
         fi
 
-        
+
 
     - name: Moving Test Results
       shell: bash
       if: always()
       run: |
-
-        pod_name=$(k3s kubectl get pods -n payload-app -l app=${{ inputs.app_name }} -o jsonpath="{.items[0].metadata.name}")
-
-        echo "Running: k3s kubectl cp -n payload-app/${pod_name}-client:/var/spacedev/tmp/test-results.xml ${GITHUB_WORKSPACE}/test-results.xml"
-        k3s kubectl cp payload-app/${pod_name}-client:/var/spacedev/tmp/test-results.xml ${GITHUB_WORKSPACE}/test-results.xml
-        ls ${GITHUB_WORKSPACE}
+        cat ${PWD}/.git/test-results.xml
 
     - name: Publish Test Results
       uses: EnricoMi/publish-unit-test-result-action/linux@v2
