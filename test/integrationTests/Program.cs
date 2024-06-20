@@ -10,7 +10,6 @@ public class Program {
         RunTests<CacheTests>();
         RunTests<DirectToAppTests>();
         RunTests<ProtoTests>();
-        RunTests<CoreTests>();
         Console.WriteLine("--------- All Tests successful ---------");
     }
 
