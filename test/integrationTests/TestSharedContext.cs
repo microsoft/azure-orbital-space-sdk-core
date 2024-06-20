@@ -49,6 +49,23 @@ public class TestSharedContext : IDisposable {
         while (TestSharedContext.IS_ONLINE == false) {
             Thread.Sleep(250);
         }
+
+        Console.WriteLine($"Waiting for '{TARGET_SVC_APP_ID}' to come online...");
+        List<MessageFormats.Common.HeartBeatPulse> heartBeats = TestSharedContext.SPACEFX_CLIENT.ServicesOnline();
+
+        DateTime maxTimeToWait = DateTime.Now.Add(TestSharedContext.MAX_TIMESPAN_TO_WAIT_FOR_MSG);
+
+        while (heartBeats.Any(_heartbeat => _heartbeat.AppId.Equals(TARGET_SVC_APP_ID, StringComparison.InvariantCultureIgnoreCase) == false) && DateTime.Now <= maxTimeToWait) {
+            Thread.Sleep(250);
+            heartBeats = TestSharedContext.SPACEFX_CLIENT.ServicesOnline();
+        }
+
+        if (heartBeats.Any(_heartbeat => _heartbeat.AppId.Equals(TARGET_SVC_APP_ID, StringComparison.InvariantCultureIgnoreCase) == false)) {
+            throw new TimeoutException($"Failed to get '{TARGET_SVC_APP_ID}' online after {TestSharedContext.MAX_TIMESPAN_TO_WAIT_FOR_MSG}");
+        }
+
+        Console.WriteLine($"'{TARGET_SVC_APP_ID}' is online.");
+
     }
 
     public static void WritePropertyLineToScreen(string testName, string propertyName) {
