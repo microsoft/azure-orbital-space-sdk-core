@@ -149,7 +149,7 @@ jobs:
 
         echo "Waiting for the integration test host to finish..."
 
-        local client_pid_return_code
+        client_pid_return_code
         wait "$client_pid"
         client_pid_return_code=$?
 
