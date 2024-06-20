@@ -51,13 +51,13 @@ jobs:
             --mount-workspace-git-root true
         echo $?
 
-        pod_status=$(kubectl get pods -n payload-app -l app=${{ inputs.app_name }} --output=json | jq -r '.items[0].status.phase')
-        pod_client_status=$(kubectl get pods -n payload-app -l app=${{ inputs.app_name }} --output=json | jq -r '.items[0].status.phase')
+        pod_status=$(k3s kubectl get pods -n payload-app -l app=${{ inputs.app_name }} --output=json | jq -r '.items[0].status.phase')
+        pod_client_status=$(k3s kubectl get pods -n payload-app -l app=${{ inputs.app_name }} --output=json | jq -r '.items[0].status.phase')
 
         while [[ -z "$pod_status" || "$pod_status" != "Running" ]] || [[ -z "$pod_client_status" || "$pod_client_status" != "Running" ]]; do
             echo "Checking pod statuses..."
-            pod_status=$(kubectl get pods -n payload-app -l app=${{ inputs.app_name }} --output=json | jq -r '.items[0].status.phase')
-            pod_client_status=$(kubectl get pods -n payload-app -l app=${{ inputs.app_name }} --output=json | jq -r '.items[0].status.phase')
+            pod_status=$(k3s kubectl get pods -n payload-app -l app=${{ inputs.app_name }} --output=json | jq -r '.items[0].status.phase')
+            pod_client_status=$(k3s kubectl get pods -n payload-app -l app=${{ inputs.app_name }} --output=json | jq -r '.items[0].status.phase')
 
             if [[ -z "$pod_status" || "$pod_status" != "Running" ]] || [[ -z "$pod_client_status" || "$pod_client_status" != "Running" ]]; then
                 echo "One or both pods are not 'Running'. POD: '$pod_status'.  POD_CLIENT_STATUS: '$pod_client_status' ..."
@@ -100,30 +100,36 @@ jobs:
     - name: Run Integration Tests
       shell: bash
       run: |
-        tree /var/spacedev
-        # echo "environment variables:"
-        # printenv
 
-        # echo ""
-        # echo "Running: k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }} -- bash -c \"/usr/bin/dotnet  /workspaces/${{ inputs.app_name }}/test/integrationTestHost/bin/Debug/net6.0/integrationTestHost.dll\" &"
-        # k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }} -- bash -c "/usr/bin/dotnet  /workspaces/${{ inputs.app_name }}/test/integrationTestHost/bin/Debug/net6.0/integrationTestHost.dll" &
-        # host_pid=($!)
+        echo "Starting the integration test host..."
+        echo "Running: k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }} -- bash -c \"/usr/bin/dotnet  /workspaces/${{ inputs.app_name }}/test/integrationTestHost/bin/Debug/net6.0/integrationTestHost.dll\" &"
+        k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }} -- bash -c "/usr/bin/dotnet  /workspaces/${{ inputs.app_name }}/test/integrationTestHost/bin/Debug/net6.0/integrationTestHost.dll" &
+        host_pid=$!
 
-        # echo "k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }}-client -- bash -c \"/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.app_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/var/spacedev/tmp/test-results.xml\"\""
-        # k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }}-client -- bash -c "/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.app_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/var/spacedev/tmp/test-results.xml\""
-        # cat /var/spacedev/tmp/test-results.xml
-        # echo $?
+        echo "k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }}-client -- bash -c \"/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.app_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/var/spacedev/tmp/test-results.xml\"\" &"
+        k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }}-client -- bash -c "/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.app_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/var/spacedev/tmp/test-results.xml\"" &
+        client_pid=$!
 
-        # # client_pid=($!)
+        echo "Waiting for the integration test host to finish..."
 
-        # # local return_code
-        # # wait "$client_pid"
-        # # return_code=$?
-        # # if [[ $return_code -gt 0 ]]; then
-        # #     echo "Integration Tests Failed with return code: $return_code"
-        # #     cat /var/spacedev/tmp/test-results.xml
-        # #     exit 1
-        # # fi
+        local client_pid_return_code
+        wait "$client_pid"
+        client_pid_return_code=$?
+
+        echo "Client process complete with return code: $client_pid_return_code"
+        echo "Killing the integration test host..."
+        kill -9 $host_pid
+
+        if [[ ! -f "/var/spacedev/tmp/test-results.xml" ]]; then
+          echo "Test results file not found."
+          tree /var/spacedev
+          exit 1
+        fi
+
+        if [[ $client_pid_return_code -gt 0 ]]; then
+            echo "Integration tests failed.  Exiting with code 1."
+            exit 1
+        fi
 
 
 
