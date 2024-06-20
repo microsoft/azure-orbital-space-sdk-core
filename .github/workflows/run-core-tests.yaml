@@ -126,7 +126,7 @@ jobs:
         docker exec ${DEV_CONTAINER_NAME} bash -c "/spacefx-dev/debugShim-deploy.sh --debug_shim ${{ inputs.app_name }}-client --disable_plugin_configs"
 
         echo "k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }}-client -- bash -c \"/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.app_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/var/spacedev/tmp/test-results.xml\"\" &"
-        k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }}-client -- bash -c "/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.app_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/var/spacedev/tmp/test-results.xml\"" &
+        k3s kubectl exec -n payload-app deploy/${{ inputs.app_name }}-client -- bash -c "/usr/bin/dotnet test --verbosity detailed /workspaces/${{ inputs.app_name }}/test/integrationTests/bin/Debug/net6.0/integrationTests.dll --logger \"junit;LogFileName=/workspaces/${{ inputs.app_name }}/.git/test-results.xml\"" &
         client_pid=$!
 
         echo "Waiting for the integration test host to finish..."
@@ -139,7 +139,7 @@ jobs:
         echo "Killing the integration test host..."
         kill -9 $host_pid
 
-        if [[ ! -f "/var/spacedev/tmp/test-results.xml" ]]; then
+        if [[ ! -f "/workspaces/${{ inputs.app_name }}/.git/test-results.xml" ]]; then
           echo "Test results file not found."
           tree /var/spacedev
           exit 1
@@ -156,12 +156,7 @@ jobs:
       shell: bash
       if: always()
       run: |
-        echo "testing"
-        # pod_name=$(k3s kubectl get pods -n payload-app -l app=${{ inputs.app_name }} -o jsonpath="{.items[0].metadata.name}")
-
-        # echo "Running: k3s kubectl cp -n payload-app/${pod_name}-client:/var/spacedev/tmp/test-results.xml ${GITHUB_WORKSPACE}/test-results.xml"
-        # k3s kubectl cp payload-app/${pod_name}-client:/var/spacedev/tmp/test-results.xml ${GITHUB_WORKSPACE}/test-results.xml
-        # ls ${GITHUB_WORKSPACE}
+        cat /workspaces/${{ inputs.app_name }}/.git/test-results.xml
 
     - name: Publish Test Results
       uses: EnricoMi/publish-unit-test-result-action/linux@v2
