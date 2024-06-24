@@ -41,7 +41,7 @@ jobs:
     - name: Workflow Environment
       shell: bash
       run: |
-        uname -all
+        uname --all
 
     ## Build the Service's Devcontainer and wait for pods to spin up (unnecessary when devcontainer up composite action is available)
     - name: Build Devcontainer
