@@ -1,3 +1,5 @@
+using Microsoft.Azure.SpaceFx.MessageFormats.Common;
+
 namespace Microsoft.Azure.SpaceFx;
 
 public partial class Core {
@@ -178,6 +180,17 @@ public partial class Core {
                     throw;
                 }
 
+                // Automatically process the PluginHealthCheck message
+                if (directToApp.MessageType == typeof(MessageFormats.Common.PluginHealthCheckRequest).FullName) {
+                    _logger.LogInformation("Processing message type '{messageType}' from '{sourceApp}' (trackingId: '{trackingId}' / correlationId: '{correlationId}')", directToApp.MessageType, directToApp.SourceAppId, directToApp.ResponseHeader.TrackingId, directToApp.ResponseHeader.CorrelationId);
+                    PluginHealthCheckRequest pluginHealthCheckRequest = directToApp.Message.Unpack<PluginHealthCheckRequest>();
+                    PluginHealthCheckMultiResponse _pluginHealthCheckMultiResponse = _pluginLoader.CallPluginHealthCheck(pluginHealthCheckRequest);
+
+                    _logger.LogInformation("Routing message type '{messageType}' to '{sourceApp}' (trackingId: '{trackingId}' / correlationId: '{correlationId}')", _pluginHealthCheckMultiResponse.GetType().Name, directToApp.SourceAppId, directToApp.ResponseHeader.TrackingId, directToApp.ResponseHeader.CorrelationId);
+                    _client.DirectToApp(appId: directToApp.SourceAppId, message: _pluginHealthCheckMultiResponse).Wait();
+                    return;
+                };
+
                 // Dynamically parse the message to it's underlying type
                 Google.Protobuf.Reflection.TypeRegistry registry = Google.Protobuf.Reflection.TypeRegistry.FromMessages(origMessageType.Descriptor);
 
@@ -188,7 +201,8 @@ public partial class Core {
 
                 if (messageHandlerService == null) {
                     if (directToApp.MessageType != typeof(MessageFormats.Common.TelemetryMetricResponse).FullName &&
-                        directToApp.MessageType != typeof(MessageFormats.Common.LogMessageResponse).FullName) {
+                        directToApp.MessageType != typeof(MessageFormats.Common.LogMessageResponse).FullName &&
+                        directToApp.MessageType != typeof(MessageFormats.Common.PluginHealthCheckMultiResponse).FullName) {
                         _logger.LogWarning("No Message Handler registered for message type '{messageType}' ({messageName}).  Disregarding message.", directToApp.MessageType, nameof(MessageFormats.Common.LogMessageResponse));
                     };
                     return;

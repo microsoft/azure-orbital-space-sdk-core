@@ -29,6 +29,7 @@ public class TestSharedContext : IDisposable {
             services.AddAzureOrbitalFramework();
             services.AddHostedService<ServiceCallback>();
             services.AddSingleton<Core.IMessageHandler<MessageFormats.Testing.SimpleMessage>, MessageHandler<MessageFormats.Testing.SimpleMessage>>();
+            services.AddSingleton<Core.IMessageHandler<MessageFormats.Common.PluginHealthCheckMultiResponse>, MessageHandler<MessageFormats.Common.PluginHealthCheckMultiResponse>>();
         }).ConfigureLogging((logging) => {
             logging.AddProvider(new Microsoft.Extensions.Logging.SpaceFX.Logger.HostSvcLoggerProvider());
         });

@@ -6,6 +6,7 @@ public class Program {
     internal static TestSharedContext TEST_SHARED_CONTEXT = new();
     public static void Main(string[] args) {
         Console.WriteLine("--------- Starting Tests ---------");
+        RunTests<PluginHealthCheckTests>();
         RunTests<HeartbeatTests>();
         RunTests<CacheTests>();
         RunTests<DirectToAppTests>();
