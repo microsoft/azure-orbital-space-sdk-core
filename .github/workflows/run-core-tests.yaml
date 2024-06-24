@@ -200,7 +200,9 @@ jobs:
       shell: bash
       run: |
         echo "Installing extra dependencies for spacesdk-ubuntu-2204LTS-arm64"
-        sudo apt install python3.10-venv
+        sudo apt install -y python3.10-venv
+        sudo apt install -y python3-pip-whl
+        sudo apt install -y python3-setuptools-whl
 
 
     - name: Publish Test Results
