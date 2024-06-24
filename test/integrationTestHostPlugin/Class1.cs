@@ -24,9 +24,16 @@ public class Class1 : IntegrationTestHost.PluginBase {
 
     public override void ConfigureLogging(ILoggerFactory loggerFactory) => Logger = loggerFactory.CreateLogger<Class1>();
 
-    public override Task<PluginHealthCheckResponse> PluginHealthCheckResponse() {
-        throw new NotImplementedException();
-    }
+    public override Task<PluginHealthCheckResponse> PluginHealthCheckResponse() => Task<PluginHealthCheckResponse>.Run(() => {
+        return new PluginHealthCheckResponse {
+            ResponseHeader = new ResponseHeader {
+                CorrelationId = Guid.NewGuid().ToString(),
+                TrackingId = Guid.NewGuid().ToString(),
+                Status = StatusCodes.Healthy,
+                Message = "Hello from the plugin!"
+            },
+        };
+    });
 
     public override Task<SimpleMessage?> SimpleMessage(SimpleMessage? input_request) => Task.Run(() => {
         if (input_request == null) return input_request;

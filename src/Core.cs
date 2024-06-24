@@ -1,6 +1,4 @@
-﻿
-
-using Microsoft.Azure.SpaceFx.MessageFormats.Common;
+﻿using Microsoft.Azure.SpaceFx.MessageFormats.Common;
 
 namespace Microsoft.Azure.SpaceFx;
 
