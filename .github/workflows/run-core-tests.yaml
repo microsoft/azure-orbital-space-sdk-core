@@ -203,7 +203,7 @@ jobs:
         sudo apt install -y python3.10-venv
         sudo apt install -y python3-pip-whl
         sudo apt install -y python3-setuptools-whl
-        sudo apt-get install gcc python3-dev
+        sudo apt-get install -y gcc python3-dev
 
 
     - name: Publish Test Results
