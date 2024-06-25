@@ -2,6 +2,8 @@
 
 [![core-build-nuget](https://github.com/microsoft/azure-orbital-space-sdk-core/actions/workflows/core-artifacts.yaml/badge.svg?branch=main)](https://github.com/microsoft/azure-orbital-space-sdk-core/actions/workflows/core-artifacts.yaml)
 
+[![test-core](https://github.com/microsoft/azure-orbital-space-sdk-core/actions/workflows/test-core.yaml/badge.svg)](https://github.com/microsoft/azure-orbital-space-sdk-core/actions/workflows/test-core.yaml)
+
 This repository hosts a common code base for all host services, payload apps, platform services.  It scaffolds all message publishing and subscribing used by all services and payload apps.
 
 Outputs:

@@ -188,6 +188,16 @@ jobs:
         # moving test-results.xml to the root of the workspace
         mv .git/test-results.xml ${PWD}
 
+    - name: Install Extra Dependencies
+      if: inputs.WORKFLOW_AGENT == 'spacesdk-ubuntu-2204LTS-arm64'
+      shell: bash
+      run: |
+        echo "Installing extra dependencies for spacesdk-ubuntu-2204LTS-arm64"
+        sudo apt install -y python3.10-venv
+        sudo apt install -y python3-pip-whl
+        sudo apt install -y python3-setuptools-whl
+        sudo apt-get install -y gcc python3-dev
+
 
     - name: Publish Test Results
       uses: EnricoMi/publish-unit-test-result-action/linux@v2
