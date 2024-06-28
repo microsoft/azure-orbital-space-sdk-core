@@ -202,6 +202,56 @@ public partial class Core {
                 return returnTypes;
             }
 
+            public MessageFormats.Common.PluginHealthCheckMultiResponse CallPluginHealthCheck(MessageFormats.Common.PluginHealthCheckRequest request) {
+                MessageFormats.Common.PluginHealthCheckMultiResponse response = Utils.ResponseFromRequest(request, new MessageFormats.Common.PluginHealthCheckMultiResponse());
+
+                response.ResponseHeader.Status = MessageFormats.Common.StatusCodes.Successful;
+
+                using (var scope = _serviceProvider.CreateScope()) {
+
+                    foreach (var _loadedPlugin in _loadedPlugins) {
+                        System.Type? typedPlugin;
+                        Models.PLUG_IN? config_plugin;
+
+                        typedPlugin = _pluginTypes.FirstOrDefault(_type => _type.FullName == _loadedPlugin.GetType().FullName);
+
+                        if (typedPlugin == null) continue;
+
+                        config_plugin = _plugins.FirstOrDefault(_plugin => _plugin.PLUGINFILE == typedPlugin.Module.FullyQualifiedName);
+
+                        if (config_plugin == null) continue;
+
+                        if (!config_plugin.ENABLED) {
+                            _logger.LogWarning("Plugin '{pluginName}' is disabled.  Skipping plugin.", config_plugin.PLUGINFILE);
+                            continue;
+                        }
+
+                        try {
+                            _logger.LogTrace("Querying '{plugin_name}' Health Check", config_plugin.PLUGINFILE);
+
+                            MessageFormats.Common.PluginHealthCheckResponse _plugin_response = _loadedPlugin.PluginHealthCheckResponse().Result;
+                            response.PluginHealthCheckResponses.Add(_plugin_response);
+                        } catch (UnauthorizedAccessException) {
+                            // The plugin doesn't have permissions to make the call
+                            _logger.LogWarning("Plugin '{pluginName}':  Does not have required permissions for call", config_plugin.PLUGINFILE);
+                        } catch (NotImplementedException) {
+                            // The plugin doesn't implement the method we called.  Log it here and loop to the next one
+                            _logger.LogWarning("Plugin '{pluginName}':  Method not implemented.", config_plugin.PLUGINFILE);
+                        } catch (Exception ex) {
+                            // The plugin has a hard failure.  Log it here and loop to the next one.
+                            _logger.LogError("Plugin '{pluginName}':  Plugin Error.  Exception: {errorMsg}", config_plugin.PLUGINFILE, ex.Message);
+                        }
+                    };
+
+                    if (response.PluginHealthCheckResponses.Any(_response => _response.ResponseHeader.Status != MessageFormats.Common.StatusCodes.Healthy && _response.ResponseHeader.Status != MessageFormats.Common.StatusCodes.Successful)) {
+                        response.ResponseHeader.Status = MessageFormats.Common.StatusCodes.GeneralFailure;
+                        response.ResponseHeader.Message = "One or more plugins did not have a successful health check";
+                    }
+                }
+
+                return response;
+            }
+
             public T? CallPlugins<T, V>(T orig_request, Func<(T? input_request, V plugin), T?> pluginDelegate) {
                 if (orig_request == null) throw new ArgumentNullException("pluginInput");
 

@@ -1,10 +1,17 @@
-﻿
-
-using Microsoft.Azure.SpaceFx.MessageFormats.Common;
+﻿using Microsoft.Azure.SpaceFx.MessageFormats.Common;
 
 namespace Microsoft.Azure.SpaceFx;
 
 public partial class Core {
+
+    public interface IRequestHeaderMessage {
+        MessageFormats.Common.RequestHeader RequestHeader { get; }
+    }
+
+    public interface IResponseHeaderMessage {
+        MessageFormats.Common.ResponseHeader ResponseHeader { get;}
+    }
+
     /// <summary>
     /// Enables apps to check if the client has been provisioned yet
     /// </summary>
