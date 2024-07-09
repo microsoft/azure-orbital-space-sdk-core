@@ -14,7 +14,7 @@
     <PreserveCompilationContext>false</PreserveCompilationContext>
   </PropertyGroup>
   <ItemGroup>
-    <Protobuf Include="/var/spacedev/protos/spacefx/common/Common.proto" GrpcServices="Both" Access="Public" ProtoCompile="True" CompileOutputs="True" ProtoRoot="/var/spacedev/protos" OutputDir="obj/Debug/net6.0/" />
+    <Protobuf Include="/var/spacedev/protos/spacefx/protos/common/Common.proto" GrpcServices="Both" Access="Public" ProtoCompile="True" CompileOutputs="True" ProtoRoot="/var/spacedev/protos" OutputDir="obj/Debug/net6.0/" />
     <Protobuf Include="/workspaces/spacesdk-core/src/Protos/dapr/proto/common/v1/common.proto" GrpcServices="Both" Access="Public" ProtoCompile="True" CompileOutputs="True" ProtoRoot="/workspaces/spacesdk-core/src/Protos" OutputDir="obj/Debug/net6.0/" />
     <Protobuf Include="/workspaces/spacesdk-core/src/Protos/dapr/proto/runtime/v1/appcallback.proto" GrpcServices="Both" Access="Public" ProtoCompile="True" CompileOutputs="True" ProtoRoot="/workspaces/spacesdk-core/src/Protos" OutputDir="obj/Debug/net6.0/" />
     <Protobuf Include="/workspaces/spacesdk-core/src/Protos/dapr/proto/runtime/v1/dapr.proto" GrpcServices="Both" Access="Public" ProtoCompile="True" CompileOutputs="True" ProtoRoot="/workspaces/spacesdk-core/src/Protos" OutputDir="obj/Debug/net6.0/" />
