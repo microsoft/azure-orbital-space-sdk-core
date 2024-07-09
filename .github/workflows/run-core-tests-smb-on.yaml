@@ -39,7 +39,7 @@ jobs:
 
     - uses: microsoft/azure-orbital-space-sdk-github-actions/composite-actions/switch-smb@main
       with:
-        REPO_DIR: "${{ inputs.artifact_dir }}"
+        REPO_DIR: "${PWD}"
         VALUE: "true"
 
     #Build the Service's Devcontainer and wait for pods to spin up (unnecessary when devcontainer up composite action is available)

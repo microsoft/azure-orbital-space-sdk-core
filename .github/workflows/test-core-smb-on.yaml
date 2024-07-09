@@ -1,4 +1,4 @@
-name: test-core
+name: test-core-smb-on
 
 on: 
     workflow_dispatch:
@@ -7,7 +7,7 @@ on:
       branches: [ main ]
 
 jobs:
-  test-core-amd64:
+  test-core-smb-on-amd64:
     permissions:
       contents: read
       issues: read
@@ -22,7 +22,7 @@ jobs:
       GIT_HUB_USER_TOKEN: ${{ secrets.GIT_HUB_USER_TOKEN }}
       SETUP_REPO_URL: ${{ secrets.SETUP_REPO_URL }}
 
-  test-core-arm64:
+  test-core-smb-on-arm64:
     permissions:
       contents: read
       issues: read
