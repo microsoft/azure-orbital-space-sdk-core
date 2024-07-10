@@ -52,7 +52,7 @@ public class ProtoTests : IClassFixture<TestSharedContext> {
     [Fact]
     public void RequestHeader() {
         // Arrange
-        List<string> expectedProperties = new() { "TrackingId", "CorrelationId", "Metadata", "AppId" };
+        List<string> expectedProperties = new() { "TrackingId", "CorrelationId", "Metadata", "AppId", "OriginAppId" };
 
         var request = new MessageFormats.Common.RequestHeader() {
             TrackingId = GenericGuid,
@@ -70,7 +70,7 @@ public class ProtoTests : IClassFixture<TestSharedContext> {
     [Fact]
     public void ResponseHeader() {
         // Arrange
-        List<string> expectedProperties = new() { "TrackingId", "CorrelationId", "Status", "Message", "AppId", "Metadata" };
+        List<string> expectedProperties = new() { "TrackingId", "CorrelationId", "Status", "Message", "AppId", "Metadata", "OriginAppId" };
 
         var request = new MessageFormats.Common.ResponseHeader() {
             TrackingId = GenericGuid,

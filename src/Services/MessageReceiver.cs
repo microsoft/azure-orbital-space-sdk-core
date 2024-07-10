@@ -223,6 +223,7 @@ public partial class Core {
                         MessageFormats.Common.RequestHeader requestHeaderBase = innerMessage.Descriptor.Fields.InFieldNumberOrder().First(field => field.PropertyName == "RequestHeader").Accessor.GetValue(innerMessage) as MessageFormats.Common.RequestHeader ?? new MessageFormats.Common.RequestHeader();
 
                         requestHeaderBase.AppId = directToApp.SourceAppId;
+                        if (string.IsNullOrEmpty(requestHeaderBase.OriginAppId)) requestHeaderBase.OriginAppId = directToApp.SourceAppId;
                         if (string.IsNullOrEmpty(requestHeaderBase.TrackingId)) requestHeaderBase.TrackingId = Guid.NewGuid().ToString();
                         if (string.IsNullOrEmpty(requestHeaderBase.CorrelationId)) requestHeaderBase.CorrelationId = requestHeaderBase.TrackingId;
 
@@ -234,6 +235,7 @@ public partial class Core {
                         MessageFormats.Common.ResponseHeader responseHeaderBase = innerMessage.Descriptor.Fields.InFieldNumberOrder().First(field => field.PropertyName == "ResponseHeader").Accessor.GetValue(innerMessage) as MessageFormats.Common.ResponseHeader ?? new MessageFormats.Common.ResponseHeader();
 
                         responseHeaderBase.AppId = directToApp.SourceAppId;
+                        if (string.IsNullOrEmpty(responseHeaderBase.OriginAppId)) responseHeaderBase.OriginAppId = directToApp.SourceAppId;
                         if (string.IsNullOrEmpty(responseHeaderBase.TrackingId)) responseHeaderBase.TrackingId = Guid.NewGuid().ToString();
                         if (string.IsNullOrEmpty(responseHeaderBase.CorrelationId)) responseHeaderBase.CorrelationId = responseHeaderBase.TrackingId;
                         innerMessage.Descriptor.Fields.InFieldNumberOrder().First(field => field.PropertyName == "ResponseHeader").Accessor.SetValue(innerMessage, responseHeaderBase);
