@@ -36,6 +36,9 @@ jobs:
         GIT_HUB_USER_TOKEN: ${{ secrets.GIT_HUB_USER_TOKEN }}
         SETUP_REPO_URL: ${{ secrets.SETUP_REPO_URL }}
 
+    - uses: microsoft/azure-orbital-space-sdk-github-actions/composite-actions/install-publish-dependencies@main
+      if: inputs.WORKFLOW_AGENT == 'spacesdk-ubuntu-2204LTS-arm64'
+
     ## Build the Service's Devcontainer and wait for pods to spin up (unnecessary when devcontainer up composite action is available)
     - name: Build Devcontainer
       shell: bash
@@ -173,7 +176,7 @@ jobs:
         echo ""
 
         echo "Outputting contents of .git directory"
-        tree ${PWD}/.git
+        ls ${PWD}/.git
 
         if [[ ! -f "${PWD}/.git/test-results.xml" ]]; then
           echo "Test results file not found."
@@ -187,10 +190,6 @@ jobs:
 
         # moving test-results.xml to the root of the workspace
         mv .git/test-results.xml ${PWD}
-
-    - uses: microsoft/azure-orbital-space-sdk-github-actions/composite-actions/install-publish-dependencies@main
-      if: inputs.WORKFLOW_AGENT == 'spacesdk-ubuntu-2204LTS-arm64'
-
 
     - name: Publish Test Results
       uses: EnricoMi/publish-unit-test-result-action/linux@v2
