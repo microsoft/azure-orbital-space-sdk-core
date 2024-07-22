@@ -40,6 +40,9 @@ public partial class Core {
 
                     // Run until cancellation is requested
                     while (!cancellationToken.IsCancellationRequested) {
+                        // Wait for the configured interval before starting
+                        await Task.Delay(_appConfig.RESOURCE_MONITOR_TIMING_MS);
+
                         using (var scope = _serviceProvider.CreateScope()) {
                             try {
                                 // If resource monitoring is enabled
@@ -115,8 +118,6 @@ public partial class Core {
                                 }
                             }
                         }
-                        // Wait for the configured interval before the next iteration
-                        await Task.Delay(_appConfig.RESOURCE_MONITOR_TIMING_MS);
                     }
                 });
             }
