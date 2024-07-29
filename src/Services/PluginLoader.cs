@@ -67,6 +67,11 @@ public partial class Core {
             private void ScanAndLoadPlugins() {
                 ILoggerFactory loggerFactory;
 
+                if (!Directory.Exists(_appConfig.PLUGIN_DIRECTORY)) {
+                    // If the plugin directory doesn't exist, we can't load plugins.  Quietly return and try again later
+                    return;
+                }
+
                 foreach (string file in System.IO.Directory.GetFiles(_appConfig.PLUGIN_DIRECTORY, "*.json.spacefx_plugin")) {
                     string plugin_json = System.IO.File.ReadAllText(file);
                     Models.PLUG_IN? config_plugin;
