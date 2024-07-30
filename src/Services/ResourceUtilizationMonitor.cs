@@ -11,7 +11,7 @@ public partial class Core {
         /// <summary>
         /// Trigger a pulse to let other apps know that this app is only and ready to work
         /// </summary>
-        public class ResourceUtilizationMonitor : IHostedService {
+        public class ResourceUtilizationMonitor : IHostedService, IMonitorableService {
             private readonly ILogger<ResourceUtilizationMonitor> _logger;
             private IServiceProvider _serviceProvider;
             private readonly Services.HeartbeatService _heartbeatService;
@@ -20,6 +20,16 @@ public partial class Core {
             private DateTime _lastProcessorMonitorTime;
             private TimeSpan _lastProcessorTime;
             private readonly IHostApplicationLifetime _appLifetime;
+            private DateTime _mostRecentRun;
+            public bool IsHealthy() {
+                if (_appConfig.RESOURCE_MONITOR_ENABLED && DateTime.UtcNow > _mostRecentRun.Add(TimeSpan.FromMilliseconds(_appConfig.RESOURCE_MONITOR_TIMING_MS * 2))) {
+                    // Log a critical error and return a false value to indicate an unhealthy state.
+                    _logger.LogCritical("Resource Utilization Monitor has not run in the last {timing}. Returning unhealthy.", _appConfig.RESOURCE_MONITOR_TIMING_MS);
+                    return false;
+                }
+
+                return true;
+            }
 
             public ResourceUtilizationMonitor(ILogger<ResourceUtilizationMonitor> logger, IServiceProvider serviceProvider, Services.HeartbeatService heartbeatService, Core.Client client, IHostApplicationLifetime appLifetime) {
                 _logger = logger;
@@ -31,6 +41,7 @@ public partial class Core {
                 _appConfig = _serviceProvider.GetService<Core.APP_CONFIG>() ?? new APP_CONFIG();
                 _lastProcessorMonitorTime = DateTime.MinValue;
                 _lastProcessorTime = TimeSpan.MinValue;
+                _mostRecentRun = DateTime.UtcNow;
             }
 
             public Task StartAsync(CancellationToken cancellationToken) {
@@ -42,6 +53,7 @@ public partial class Core {
                     while (!cancellationToken.IsCancellationRequested) {
                         // Wait for the configured interval before starting
                         await Task.Delay(_appConfig.RESOURCE_MONITOR_TIMING_MS);
+                        _mostRecentRun = DateTime.UtcNow;
 
                         using (var scope = _serviceProvider.CreateScope()) {
                             try {

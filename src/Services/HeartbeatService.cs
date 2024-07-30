@@ -21,7 +21,7 @@ public partial class Core {
             public bool IsHealthy() {
                 if (_heartbeatsHeard.IsEmpty && DateTime.UtcNow > _appStartTime.Add(_heartBeatHeardTolerance * 2)) {
                     // Log a critical error and return a false value to indicate an unhealthy state.
-                    _logger.LogCritical("No heartbeats have been heard in the last {tolerance}. Returning unhealthy", _heartBeatHeardTolerance);
+                    _logger.LogCritical("No heartbeats have been heard in the last {tolerance}. Returning unhealthy. ", _heartBeatHeardTolerance);
                     return false;
                 }
 

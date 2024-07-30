@@ -4,7 +4,7 @@ namespace Microsoft.Azure.SpaceFx;
 
 public partial class Core {
     public partial class Services {
-        public class MessageReceiver : AppCallback.AppCallbackBase {
+        public class MessageReceiver : AppCallback.AppCallbackBase, IMonitorableService {
             private readonly ILogger<MessageReceiver> _logger;
             private readonly IServiceProvider _serviceProvider;
             private readonly IHostApplicationLifetime _appLifetime;
@@ -16,6 +16,17 @@ public partial class Core {
             private string _directToAppTopic = "DirectToApp-";
             private Assembly[] _assemblies;
             private readonly Core.APP_CONFIG _appConfig;
+            private DateTime _mostRecentMsgHeard;
+            public bool IsHealthy() {
+                if (DateTime.UtcNow > _mostRecentMsgHeard.Add(TimeSpan.FromMilliseconds(_appConfig.HEARTBEAT_RECEIVED_TOLERANCE_MS) * 2)) {
+                    // Log a critical error and return a false value to indicate an unhealthy state.
+                    _logger.LogCritical("Message Receiver has not received any messages in the last {timing}. Returning unhealthy.", _appConfig.RESOURCE_MONITOR_TIMING_MS);
+                    return false;
+                }
+
+                return true;
+            }
+
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
             public MessageReceiver(ILogger<MessageReceiver> logger, Services.HeartbeatService heartbeatService, Services.ResourceUtilizationMonitor resourceUtilizationMonitor, Services.PluginLoader pluginLoader, Core.Client client, IServiceProvider serviceProvider, IHostApplicationLifetime appLifetime) {
                 _logger = logger;
@@ -25,6 +36,7 @@ public partial class Core {
                 _heartbeatService = heartbeatService;
                 _pluginLoader = pluginLoader;
                 _appLifetime = appLifetime;
+                _mostRecentMsgHeard = DateTime.UtcNow;
 
                 try {
                     using (IServiceScope scope = _serviceProvider.CreateScope()) {
@@ -117,7 +129,7 @@ public partial class Core {
             /// <returns></returns>
             public override Task<TopicEventResponse> OnTopicEvent(TopicEventRequest request, ServerCallContext context) {
                 using (var scope = _serviceProvider.CreateScope()) {
-
+                    _mostRecentMsgHeard = DateTime.UtcNow;
                     _logger.LogTrace("Services.MessageReceiver.OnTopicEvent start");
                     _logger.LogDebug("Received Message Type '{topic}' from App '{source}'.  Message Length: {messageLength}", request.Topic, request.Source, request.Data.Length);
 

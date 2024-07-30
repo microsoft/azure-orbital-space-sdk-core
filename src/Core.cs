@@ -9,7 +9,7 @@ public partial class Core {
     }
 
     public interface IResponseHeaderMessage {
-        MessageFormats.Common.ResponseHeader ResponseHeader { get;}
+        MessageFormats.Common.ResponseHeader ResponseHeader { get; }
     }
 
     /// <summary>
