@@ -6,7 +6,7 @@ public partial class Core {
         /// <summary>
         /// Trigger a pulse to let other apps know that this app is only and ready to work
         /// </summary>
-        public class HeartbeatService : IHostedService {
+        public class HeartbeatService : IHostedService, Core.IMonitorableService {
             private readonly ILogger<HeartbeatService> _logger;
             private readonly TimeSpan HeartBeatPulseTiming;
             private readonly TimeSpan _heartBeatHeardTolerance;
@@ -18,6 +18,15 @@ public partial class Core {
             private readonly ConcurrentDictionary<string, MessageFormats.Common.HeartBeatPulse> _heartbeatsHeard;
             private readonly Core.APP_CONFIG _appConfig;
             private readonly DateTime _appStartTime;
+            public bool IsHealthy() {
+                if (_heartbeatsHeard.IsEmpty && DateTime.UtcNow > _appStartTime.Add(_heartBeatHeardTolerance * 2)) {
+                    // Log a critical error and return a false value to indicate an unhealthy state.
+                    _logger.LogCritical("No heartbeats have been heard in the last {tolerance}. Returning unhealthy", _heartBeatHeardTolerance);
+                    return false;
+                }
+
+                return true;
+            }
 
             public HeartbeatService(ILogger<HeartbeatService> logger, IServiceProvider serviceProvider, Core.Client client, IHostApplicationLifetime appLifetime) {
                 _appStartTime = DateTime.UtcNow;
@@ -134,7 +143,7 @@ public partial class Core {
                     _logger.LogTrace("All stale heartbeats successfully removed.");
 
                     // Check if the cache is empty and the current time exceeds the app start time by the tolerance period.
-                    if (_heartbeatsHeard.IsEmpty && DateTime.UtcNow > _appStartTime.Add(_heartBeatHeardTolerance)) {
+                    if (_heartbeatsHeard.IsEmpty && DateTime.UtcNow > _appStartTime.Add(_heartBeatHeardTolerance * 2)) {
                         // Log a critical error and throw an exception to potentially trigger a service restart.
                         _logger.LogCritical("No heartbeats have been heard in the last {tolerance}. Triggering an exception to restart the pod.", _heartBeatHeardTolerance);
                         throw new ApplicationException($"No heartbeats have been heard in the last {_heartBeatHeardTolerance}. Triggering an exception to restart the pod.");

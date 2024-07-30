@@ -20,6 +20,12 @@ namespace Microsoft.Extensions.Logging {
                 CheckCertificateRevocationList = true
             });
 
+            var healthCheckBuilder = services.AddHealthChecks();
+            var serviceProvider = services.BuildServiceProvider();
+
+            services.AddHealthChecks()
+                .AddCheck<Microsoft.Azure.SpaceFx.Core.Services.HealthCheckService>("background_service_health_check");
+
             return services;
         }
     }
