@@ -5,7 +5,7 @@ public partial class Core {
         /// <summary>
         /// Trigger a pulse to let other apps know that this app is only and ready to work
         /// </summary>
-        public class PluginLoader : IHostedService {
+        public class PluginLoader : IHostedService, Core.IMonitorableService {
             private readonly ILogger<PluginLoader> _logger;
             private readonly IServiceProvider _serviceProvider;
             private readonly List<Models.PLUG_IN> _plugins;
@@ -14,6 +14,23 @@ public partial class Core {
             private readonly TimeSpan HeartBeatPulseTiming;
             private readonly Core.APP_CONFIG _appConfig;
             private List<System.Type> _pluginTypes;
+            public bool IsHealthy() {
+                // Return healthy if there are no plugins
+                if (_plugins.Count == 0)
+                    return true;
+
+                // Check to see if any plugins have been removed and if so, trigger unhealthy
+                foreach (Models.PLUG_IN plugin in _plugins) {
+                    if (!File.Exists(Path.Combine(_appConfig.PLUGIN_DIRECTORY, plugin.PLUGINFILE))) {
+                        _logger.LogError($"Plugin '{plugin.PLUGINFILE}' was loaded, but the file '{Path.Combine(_appConfig.PLUGIN_DIRECTORY, plugin.PLUGINFILE)}' is not found.  Returning unhealthy.");
+                        return false;
+                    }
+                }
+
+                // Everything is all good
+                return true;
+            }
+
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
             public PluginLoader(ILogger<PluginLoader> logger, IServiceProvider serviceProvider, IHostApplicationLifetime appLifetime) {
                 try {

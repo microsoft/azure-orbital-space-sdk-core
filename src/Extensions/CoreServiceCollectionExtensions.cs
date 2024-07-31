@@ -9,7 +9,7 @@ namespace Microsoft.Extensions.Logging {
             services.AddSingleton<Microsoft.Azure.SpaceFx.Core.Services.HeartbeatService>();
             services.AddSingleton<Microsoft.Azure.SpaceFx.Core.Services.ResourceUtilizationMonitor>();
             services.AddSingleton<Microsoft.Azure.SpaceFx.Core.Services.PluginLoader>();
-
+            services.AddGrpcHealthChecks().AddCheck<Microsoft.Azure.SpaceFx.Core.Services.LivenessCheck>("SDKHealthCheck");
             services.AddHttpClient<HttpClient>().ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler {
                 CheckCertificateRevocationList = true
             });

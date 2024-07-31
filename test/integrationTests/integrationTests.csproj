@@ -15,6 +15,7 @@
     </PackageReference>
     <PackageReference Include="Grpc.AspNetCore" Version="2.57.0" />
     <PackageReference Include="JunitXml.TestLogger" Version="3.1.12" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
     <PackageReference Include="xunit" Version="2.5.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.1">
@@ -26,6 +27,6 @@
     <ProjectReference Include="/workspaces/spacesdk-core/src/spacesdk-core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Protobuf Include="/workspaces/spacesdk-core/test/protos/Testing.proto" GrpcServices="Both" Access="Public" ProtoCompile="True" CompileOutputs="True" ProtoRoot="/workspaces/spacesdk-core" OutputDir="obj/Debug/net6.0/" AdditionalImportDirs="/var/spacedev/protos/" ></Protobuf>
+    <Protobuf Include="/workspaces/spacesdk-core/test/protos/Testing.proto" GrpcServices="Both" Access="Public" ProtoCompile="True" CompileOutputs="True" ProtoRoot="/workspaces/spacesdk-core" OutputDir="obj/Debug/net6.0/" AdditionalImportDirs="/var/spacedev/protos/"></Protobuf>
 	</ItemGroup>
 </Project>
