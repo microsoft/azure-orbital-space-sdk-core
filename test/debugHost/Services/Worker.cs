@@ -1,6 +1,6 @@
 namespace PayloadApp.DebugHost;
 
-public class Worker : BackgroundService {
+public class Worker : BackgroundService, Microsoft.Azure.SpaceFx.Core.IMonitorableService {
     private readonly ILogger<Worker> _logger;
     private readonly IServiceProvider _serviceProvider;
     private readonly Microsoft.Azure.SpaceFx.Core.Client _client;
@@ -13,6 +13,10 @@ public class Worker : BackgroundService {
         _client = _serviceProvider.GetService<Microsoft.Azure.SpaceFx.Core.Client>() ?? throw new NullReferenceException($"{nameof(Microsoft.Azure.SpaceFx.Core.Client)} is null");
         _appId = _client.GetAppID().Result;
         _all_xfer_dir = _client.GetXFerDirectories().Result.root_directory.Replace("xfer", "allxfer");
+    }
+
+    public bool IsHealthy() {
+        return true;
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken) => Task.Run(async () => {

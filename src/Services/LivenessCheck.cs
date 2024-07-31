@@ -12,13 +12,14 @@ public partial class Core {
             private readonly Services.ResourceUtilizationMonitor _resourceUtilizationMonitor;
             private readonly Services.MessageReceiver _messageReceiver;
             private readonly Services.HeartbeatService _heartbeatService;
+            private readonly Services.PluginLoader _pluginLoader;
 
-            public LivenessCheck(ILogger<LivenessCheck> logger, IServiceProvider serviceProvider, IHostApplicationLifetime appLifetime, Services.MessageReceiver messageReceiver, Services.HeartbeatService heartbeatService, Services.ResourceUtilizationMonitor resourceUtilizationMonitor) {
+            public LivenessCheck(ILogger<LivenessCheck> logger, IServiceProvider serviceProvider, IHostApplicationLifetime appLifetime, Services.MessageReceiver messageReceiver, Services.PluginLoader pluginLoader, Services.HeartbeatService heartbeatService, Services.ResourceUtilizationMonitor resourceUtilizationMonitor) {
                 _logger = logger;
                 _serviceProvider = serviceProvider;
                 _appLifetime = appLifetime;
                 _messageReceiver = messageReceiver;
-
+                _pluginLoader = pluginLoader;
                 _resourceUtilizationMonitor = resourceUtilizationMonitor;
                 _heartbeatService = heartbeatService;
 
@@ -27,24 +28,58 @@ public partial class Core {
             }
 
             public Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default) {
-                // return Task.FromResult(HealthCheckResult.Unhealthy("The check indicates an unhealthy status."));
-
                 using (var scope = _serviceProvider.CreateScope()) {
+                    bool coreServiceHealthy = true;
                     List<string> unhealthyServices = new List<string>();
 
-                    var monitorableServices = _serviceProvider.GetServices<IMonitorableService>().ToList();
+                    // Get all hosted services that implement IMonitorableService
+                    List<IMonitorableService> monitorableServices = _serviceProvider.GetServices<IHostedService>().Where(service => service is IMonitorableService).Cast<IMonitorableService>().ToList();
 
-                    // Scan all the services utilizing the IMonitorableService interface and check if they are healthy
-                    unhealthyServices.AddRange(monitorableServices.Where(service => !service.IsHealthy()).Select(service => service.GetType().Name));
 
-                    if (!_heartbeatService.IsHealthy())
-                        unhealthyServices.Add(_heartbeatService.GetType().Name);
+                    // // Add
+                    // monitorableServices.Append(_resourceUtilizationMonitor);
+                    // monitorableServices.Append(_heartbeatService);
+                    // monitorableServices.Append(_pluginLoader);
 
-                    if (!_messageReceiver.IsHealthy())
+                    // Check the core services seperately
+                    coreServiceHealthy = _messageReceiver.IsHealthy();
+                    if (!coreServiceHealthy) {
                         unhealthyServices.Add(_messageReceiver.GetType().Name);
+                    }
 
-                    if (!_resourceUtilizationMonitor.IsHealthy())
+                    _logger.LogDebug($"Health check service: '{_messageReceiver.GetType().Name}'.  IsHealthy: {coreServiceHealthy}");
+
+
+                    coreServiceHealthy = _resourceUtilizationMonitor.IsHealthy();
+                    if (!coreServiceHealthy) {
                         unhealthyServices.Add(_resourceUtilizationMonitor.GetType().Name);
+                    }
+
+                    _logger.LogDebug($"Health check service: '{_resourceUtilizationMonitor.GetType().Name}'.  IsHealthy: {coreServiceHealthy}");
+
+                    coreServiceHealthy = _heartbeatService.IsHealthy();
+                    if (!coreServiceHealthy) {
+                        unhealthyServices.Add(_heartbeatService.GetType().Name);
+                    }
+
+                    _logger.LogDebug($"Health check service: '{_heartbeatService.GetType().Name}'.  IsHealthy: {coreServiceHealthy}");
+
+                    coreServiceHealthy = _pluginLoader.IsHealthy();
+                    if (!coreServiceHealthy) {
+                        unhealthyServices.Add(_pluginLoader.GetType().Name);
+                    }
+
+                    _logger.LogDebug($"Health check service: '{_pluginLoader.GetType().Name}'.  IsHealthy: {coreServiceHealthy}");
+
+
+
+                    foreach (IMonitorableService service in monitorableServices) {
+                        bool isHealthy = service.IsHealthy();
+                        _logger.LogDebug($"Health check service: '{service.GetType().Name}'.  IsHealthy: {isHealthy}");
+                        if (!isHealthy) {
+                            unhealthyServices.Add(service.GetType().Name);
+                        }
+                    }
 
                     if (unhealthyServices.Any()) {
                         string unhealthServicesOutput = string.Join(",", unhealthyServices);

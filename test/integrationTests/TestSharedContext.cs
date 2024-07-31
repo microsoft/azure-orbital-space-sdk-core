@@ -14,12 +14,19 @@ public class TestSharedContext : IDisposable {
     internal static Core.Client SPACEFX_CLIENT = null!;
     internal static bool HOST_SVC_ONLINE = false;
     internal static TimeSpan MAX_TIMESPAN_TO_WAIT_FOR_MSG = TimeSpan.FromSeconds(30);
+    internal static bool HEALTH_CHECK_RECEIVED;
+    internal static int HEARTBEAT_RECEIVED_TOLERANCE_MS {
+        get {
+            return int.Parse(SPACEFX_CLIENT.GetConfigSetting("heartbeatreceivedtolerancems").Result);
+        }
+    }
 
     /// <summary>
     /// Setup the SpaceFx Core to be shared across tests
     /// </summary>
     public TestSharedContext() {
         if (_grpcHost != null) return;
+        HEALTH_CHECK_RECEIVED = false;
 
         var builder = WebApplication.CreateBuilder();
         builder.Configuration.AddJsonFile("/workspaces/spacesdk-core/test/integrationTests/appsettings.json", optional: true, reloadOnChange: true);
@@ -113,11 +120,16 @@ public class MessageHandler<T> : Microsoft.Azure.SpaceFx.Core.IMessageHandler<T>
 }
 
 
-public class ServiceCallback : BackgroundService {
+public class ServiceCallback : BackgroundService, Microsoft.Azure.SpaceFx.Core.IMonitorableService {
     private readonly ILogger<ServiceCallback> _logger;
     private readonly IServiceProvider _serviceProvider;
     private readonly Microsoft.Azure.SpaceFx.Core.Client _client;
     private readonly string _appId;
+
+    public bool IsHealthy() {
+        TestSharedContext.HEALTH_CHECK_RECEIVED = true;
+        return true;
+    }
 
     public ServiceCallback(ILogger<ServiceCallback> logger, IServiceProvider serviceProvider) {
         _logger = logger;
@@ -127,6 +139,7 @@ public class ServiceCallback : BackgroundService {
 
 
     }
+
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken) {
         // while (!stoppingToken.IsCancellationRequested) {
