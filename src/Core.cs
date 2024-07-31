@@ -12,6 +12,11 @@ public partial class Core {
         MessageFormats.Common.ResponseHeader ResponseHeader { get; }
     }
 
+    public static bool WaitForServiceToComeOnline(string app_id, int timeoutMS = 10000) {
+        if (Client._client == null) throw new Exception("Client is not provisioned.  Please deploy the client before trying to run this");
+        return Client._client.WaitForServiceToComeOnline(app_id, timeoutMS);
+    }
+
     /// <summary>
     /// Enables apps to check if the client has been provisioned yet
     /// </summary>
@@ -307,6 +312,30 @@ public partial class Core {
             }
 
             return _service.RetrieveServiceHeartbeats();
+        }
+
+        /// <summary>
+        /// Waits for a service to come online or times out
+        /// </summary>
+        /// <returns></returns>
+        public bool WaitForServiceToComeOnline(string app_id, int timeoutMS = 10000) {
+            Services.HeartbeatService? _service = Client._client._serviceProvider.GetService<Services.HeartbeatService>();
+            DateTime maxWaitTime = DateTime.UtcNow.Add(TimeSpan.FromMilliseconds(timeoutMS));
+
+            while (_service == null && DateTime.UtcNow <= maxWaitTime) {
+                Task.Delay(ClientDelayMS).Wait();
+                _service = Client._client._serviceProvider.GetService<Services.HeartbeatService>();
+            }
+
+            if (_service == null) {
+                throw new TimeoutException("Timed out waiting for Heartbeat Service to come online.");
+            }
+
+            while (_service.RetrieveServiceHeartbeats().Any(heartbeat => heartbeat.AppId.Equals(app_id, StringComparison.InvariantCultureIgnoreCase)) == false && DateTime.UtcNow <= maxWaitTime) {
+                Task.Delay(ClientDelayMS).Wait();
+            }
+
+            return _service.RetrieveServiceHeartbeats().Any(heartbeat => heartbeat.AppId.Equals(app_id, StringComparison.InvariantCultureIgnoreCase));
         }
 
         /// <summary>

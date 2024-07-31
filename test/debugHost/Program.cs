@@ -17,6 +17,14 @@ public class Program {
             services.AddAzureOrbitalFramework();
             services.AddHostedService<Worker>();
             services.AddHostedService<WorkerBravo>();
+
+            services.AddSingleton<Worker>();
+            services.AddHostedService<Worker>(p => p.GetRequiredService<Worker>());
+
+            services.AddSingleton<WorkerBravo>();
+            services.AddHostedService<WorkerBravo>(p => p.GetRequiredService<WorkerBravo>());
+
+
             services.AddSingleton<Microsoft.Azure.SpaceFx.Core.IMessageHandler<Microsoft.Azure.SpaceFx.MessageFormats.Testing.SimpleMessage>, MessageHandler<Microsoft.Azure.SpaceFx.MessageFormats.Testing.SimpleMessage>>();
             services.AddSingleton(plugins);
             services.AddSingleton<Utils.PluginDelegates>();
@@ -31,10 +39,10 @@ public class Program {
         app.UseRouting();
         app.UseEndpoints(endpoints => {
             endpoints.MapGrpcService<Microsoft.Azure.SpaceFx.Core.Services.MessageReceiver>();
-            endpoints.MapGrpcService<Microsoft.Azure.SpaceFx.Core.Services.HealthCheckService>();
             endpoints.MapGet("/", async context => {
                 await context.Response.WriteAsync("Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
             });
+            endpoints.MapGrpcHealthChecksService();
         });
 
         // Add a middleware to catch exceptions and stop the host gracefully

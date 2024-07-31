@@ -19,13 +19,14 @@ public partial class Core {
             private readonly Core.APP_CONFIG _appConfig;
             private readonly DateTime _appStartTime;
             public bool IsHealthy() {
-                if (_heartbeatsHeard.IsEmpty && DateTime.UtcNow > _appStartTime.Add(_heartBeatHeardTolerance * 2)) {
-                    // Log a critical error and return a false value to indicate an unhealthy state.
-                    _logger.LogCritical("No heartbeats have been heard in the last {tolerance}. Returning unhealthy. ", _heartBeatHeardTolerance);
-                    return false;
-                }
+                // if (_heartbeatsHeard.IsEmpty && DateTime.UtcNow > _appStartTime.Add(_heartBeatHeardTolerance * 2)) {
+                //     // Log a critical error and return a false value to indicate an unhealthy state.
+                //     _logger.LogCritical("No heartbeats have been heard in the last {tolerance}. Returning unhealthy. ", _heartBeatHeardTolerance);
+                //     return false;
+                // }
 
-                return true;
+                // return true;
+                return false;
             }
 
             public HeartbeatService(ILogger<HeartbeatService> logger, IServiceProvider serviceProvider, Core.Client client, IHostApplicationLifetime appLifetime) {
