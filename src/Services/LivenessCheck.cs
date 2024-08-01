@@ -36,11 +36,6 @@ public partial class Core {
                     List<IMonitorableService> monitorableServices = _serviceProvider.GetServices<IHostedService>().Where(service => service is IMonitorableService).Cast<IMonitorableService>().ToList();
 
 
-                    // // Add
-                    // monitorableServices.Append(_resourceUtilizationMonitor);
-                    // monitorableServices.Append(_heartbeatService);
-                    // monitorableServices.Append(_pluginLoader);
-
                     // Check the core services seperately
                     coreServiceHealthy = _messageReceiver.IsHealthy();
                     if (!coreServiceHealthy) {

@@ -10,6 +10,7 @@ public partial class Core {
             private readonly ILogger<HeartbeatService> _logger;
             private readonly TimeSpan HeartBeatPulseTiming;
             private readonly TimeSpan _heartBeatHeardTolerance;
+            private readonly TimeSpan _heartBeatHeardCriticalTolerance;
             private readonly Core.Client _client;
             private readonly IServiceProvider _serviceProvider;
             private readonly IHostApplicationLifetime _appLifetime;
@@ -19,9 +20,11 @@ public partial class Core {
             private readonly Core.APP_CONFIG _appConfig;
             private readonly DateTime _appStartTime;
             public bool IsHealthy() {
-                if (_heartbeatsHeard.IsEmpty && DateTime.UtcNow > _appStartTime.Add(_heartBeatHeardTolerance * 2)) {
+                DateTime heartbeatStaleTime = DateTime.UtcNow.Subtract(_heartBeatHeardTolerance);
+
+                if (_heartbeatsHeard.Values.Where(p => p.CurrentSystemTime.ToDateTime().ToUniversalTime() >= heartbeatStaleTime).Count() == 0 && DateTime.UtcNow > _appStartTime.Add(_heartBeatHeardCriticalTolerance)) {
                     // Log a critical error and return a false value to indicate an unhealthy state.
-                    _logger.LogCritical("No heartbeats have been heard in the last {tolerance}. Returning unhealthy. ", _heartBeatHeardTolerance);
+                    _logger.LogCritical($"No heartbeats have been heard in the last {_heartBeatHeardCriticalTolerance}. Returning unhealthy. ");
                     return false;
                 }
 
@@ -41,6 +44,7 @@ public partial class Core {
 
                 HeartBeatPulseTiming = TimeSpan.FromMilliseconds(_appConfig.HEARTBEAT_PULSE_TIMING_MS);
                 _heartBeatHeardTolerance = TimeSpan.FromMilliseconds(_appConfig.HEARTBEAT_RECEIVED_TOLERANCE_MS);
+                _heartBeatHeardCriticalTolerance = TimeSpan.FromMilliseconds(_appConfig.HEARTBEAT_RECEIVED_CRITICAL_TOLERANCE_MS);
 
                 _logger.LogInformation("Services.{serviceName} Initialized.  HeartBeatPulseTiming: {pulseTiming}   HeartBeatHeardTolerance: {pulseHeardTolerance} ", nameof(HeartbeatService), HeartBeatPulseTiming, _heartBeatHeardTolerance);
 
@@ -142,12 +146,6 @@ public partial class Core {
                     // Log successful removal of stale heartbeats.
                     _logger.LogTrace("All stale heartbeats successfully removed.");
 
-                    // Check if the cache is empty and the current time exceeds the app start time by the tolerance period.
-                    if (_heartbeatsHeard.IsEmpty && DateTime.UtcNow > _appStartTime.Add(_heartBeatHeardTolerance * 2)) {
-                        // Log a critical error and throw an exception to potentially trigger a service restart.
-                        _logger.LogCritical("No heartbeats have been heard in the last {tolerance}. Triggering an exception to restart the pod.", _heartBeatHeardTolerance);
-                        throw new ApplicationException($"No heartbeats have been heard in the last {_heartBeatHeardTolerance}. Triggering an exception to restart the pod.");
-                    }
                 } catch (Exception ex) {
                     // Log any exceptions that occur during the process and rethrow to handle them accordingly.
                     _logger.LogError(ex, "Exception while removing stale heartbeats from cache.");
