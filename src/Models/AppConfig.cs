@@ -14,6 +14,7 @@ public partial class Core {
 
         public int HEARTBEAT_PULSE_TIMING_MS { get; set; }
         public int HEARTBEAT_RECEIVED_TOLERANCE_MS { get; set; }
+        public int HEARTBEAT_RECEIVED_CRITICAL_TOLERANCE_MS { get; set; }
         public bool RESOURCE_MONITOR_ENABLED { get; set; }
         public int RESOURCE_MONITOR_TIMING_MS { get; set; }
         public bool RESOURCE_SCAVENGER_ENABLED { get; set; }
@@ -39,6 +40,16 @@ public partial class Core {
                 Console.WriteLine("Setting default value of '2000'");
                 HEARTBEAT_PULSE_TIMING_MS = 2000;
             }
+
+            try {
+                HEARTBEAT_RECEIVED_CRITICAL_TOLERANCE_MS = int.Parse(GetConfigSetting("heartbeatreceivedcriticaltolerancems").Result);
+            } catch (Exception ex) {
+                Console.WriteLine("Error retrieving heartbeatreceivedcriticaltolerancems: " + ex.Message);
+                Console.WriteLine("Setting default value of '60000'");
+                HEARTBEAT_PULSE_TIMING_MS = 60000;
+            }
+
+
 
             try {
                 HEARTBEAT_RECEIVED_TOLERANCE_MS = int.Parse(GetConfigSetting("heartbeatreceivedtolerancems").Result);
