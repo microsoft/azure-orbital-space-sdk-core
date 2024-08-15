@@ -18,7 +18,7 @@ jobs:
       WORKFLOW_AGENT: ubuntu-latest
     secrets:
       GIT_HUB_USER_NAME: ${{ secrets.GIT_HUB_USER_NAME }}
-      GIT_HUB_USER_TOKEN: ${{ secrets.GIT_HUB_USER_TOKEN }}
+      GIT_HUB_USER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       SETUP_REPO_URL: ${{ secrets.SETUP_REPO_URL }}
 
   test-core-arm64:
@@ -33,5 +33,5 @@ jobs:
       WORKFLOW_AGENT: spacesdk-ubuntu-2204LTS-arm64
     secrets:
       GIT_HUB_USER_NAME: ${{ secrets.GIT_HUB_USER_NAME }}
-      GIT_HUB_USER_TOKEN: ${{ secrets.GIT_HUB_USER_TOKEN }}
+      GIT_HUB_USER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       SETUP_REPO_URL: ${{ secrets.SETUP_REPO_URL }}
