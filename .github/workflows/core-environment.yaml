@@ -36,13 +36,13 @@ jobs:
     runs-on: ${{ inputs.WORKFLOW_AGENT }}
 
     steps:
-    - uses: microsoft/azure-orbital-space-sdk-github-actions/composite-actions/initialize@main
+    - uses: microsoft/azure-orbital-space-sdk-github-actions/composite-actions/initialize@0.11.0-nightly
       with:
         GIT_HUB_USER_NAME: ${{ secrets.GIT_HUB_USER_NAME }}
         GIT_HUB_USER_TOKEN: ${{ secrets.GIT_HUB_USER_TOKEN }}
         SETUP_REPO_URL: ${{ secrets.SETUP_REPO_URL }}
 
-    - uses: microsoft/azure-orbital-space-sdk-github-actions/composite-actions/build-app@main
+    - uses: microsoft/azure-orbital-space-sdk-github-actions/composite-actions/build-app@0.11.0-nightly
       with:
         ARCHITECTURE: ${{ inputs.ARCHITECTURE }}
         APP_PROJECT: './src/spacesdk-core.csproj'
@@ -58,7 +58,7 @@ jobs:
         sudo mv /var/spacedev/tmp/core/${{ inputs.ARCHITECTURE}}/nuget/Microsoft.Azure.SpaceSDK.Core.0.11.0.nupkg /var/spacedev/nuget/core/Microsoft.Azure.SpaceSDK.Core.0.11.0.nupkg
         tree /var/spacedev/nuget/core
 
-    - uses: microsoft/azure-orbital-space-sdk-github-actions/composite-actions/push-build-artifact@main
+    - uses: microsoft/azure-orbital-space-sdk-github-actions/composite-actions/push-build-artifact@0.11.0-nightly
       with:
         artifact: /var/spacedev/nuget/core/Microsoft.Azure.SpaceSDK.Core.0.11.0.nupkg
         architecture: ${{ inputs.ARCHITECTURE }}
