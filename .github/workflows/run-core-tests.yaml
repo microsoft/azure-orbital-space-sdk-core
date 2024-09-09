@@ -30,13 +30,13 @@ jobs:
       pull-requests: write
 
     steps:
-    - uses: microsoft/azure-orbital-space-sdk-github-actions/composite-actions/initialize@main
+    - uses: microsoft/azure-orbital-space-sdk-github-actions/composite-actions/initialize@0.11.0-nightly
       with:
         GIT_HUB_USER_NAME: ${{ secrets.GIT_HUB_USER_NAME }}
         GIT_HUB_USER_TOKEN: ${{ secrets.GIT_HUB_USER_TOKEN }}
         SETUP_REPO_URL: ${{ secrets.SETUP_REPO_URL }}
 
-    - uses: microsoft/azure-orbital-space-sdk-github-actions/composite-actions/install-publish-dependencies@main
+    - uses: microsoft/azure-orbital-space-sdk-github-actions/composite-actions/install-publish-dependencies@0.11.0-nightly
       if: inputs.WORKFLOW_AGENT == 'spacesdk-ubuntu-2204LTS-arm64'
 
     ## Build the Service's Devcontainer and wait for pods to spin up (unnecessary when devcontainer up composite action is available)
