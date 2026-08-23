@@ -192,7 +192,7 @@ jobs:
         mv .git/test-results.xml ${PWD}
 
     - name: Publish Test Results
-      uses: EnricoMi/publish-unit-test-result-action/linux@v2
+      uses: EnricoMi/publish-unit-test-result-action/linux@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2.24.0
       if: always()
       with:
         junit_files:  test-results.xml
